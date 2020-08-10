@@ -34,4 +34,4 @@ jobs:
     - name: Test with pytest
       run: |
         export PYTHONPATH="$PWD/caching"
-        python -m unittest discover.
+        python -m unittest discover .
