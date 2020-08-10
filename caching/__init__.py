@@ -13,6 +13,7 @@ class CacheManager:
     Attributes:
         worker (caching.worker.Worker): worker object that manages the access to the cache
         s3 (bool): if True, use S3 instead of local file storage
+        s3_cache_path (Optional[str]): path to the cache in the s3
     """
 
     def __init__(self, s3: bool = False, s3_cache_path: Optional[str] = None):
