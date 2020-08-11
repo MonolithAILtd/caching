@@ -14,7 +14,7 @@ class TestWorker(TestCase):
         mock_uuid.return_value = "test"
 
         test = Worker()
-        test.instances.append(weakref.proxy(test))
+        # test.instances.append(weakref.proxy(test))
 
         mock_os.urandom.assert_called_once_with(16)
         mock_uuid.assert_called_once_with(bytes=mock_os.urandom.return_value, version=4)
