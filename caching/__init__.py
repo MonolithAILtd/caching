@@ -1,5 +1,5 @@
 import json
-from typing import Union, Optional
+from typing import Union, Optional, Dict
 
 from caching.errors import CacheManagerError
 from caching.worker import Worker
@@ -42,6 +42,9 @@ class CacheManager:
             self.worker = Worker(existing_cache=existing_cache)
             if existing_cache is None:
                 self._create_meta()
+            else:
+                if self.meta.get("locked", False) is True:
+                    self.worker.lock()
 
     def lock_cache(self) -> None:
         """
@@ -52,6 +55,18 @@ class CacheManager:
         if self.worker is None:
             raise CacheManagerError(message="cache worker is not defined so cannot be locked")
         self.worker.lock()
+        self.insert_meta(key="locked", value=True)
+
+    def unlock_cache(self) -> None:
+        """
+        Unlocks the cache so it will get wiped when finished.
+
+        :return: None
+        """
+        if self.worker is None:
+            raise CacheManagerError(message="cache worker is not defined so cannot be unlocked")
+        self.worker.unlock()
+        self.insert_meta(key="locked", value=False)
 
     def wipe_cache(self) -> None:
         """
@@ -101,7 +116,7 @@ class CacheManager:
             return None
 
     @property
-    def meta(self):
+    def meta(self) -> Dict:
         """
         Dynamic property.
 
