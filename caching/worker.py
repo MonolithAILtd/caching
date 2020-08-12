@@ -1,4 +1,5 @@
 import datetime
+import weakref
 from uuid import UUID
 import os
 import shutil
@@ -15,6 +16,7 @@ class Worker:
         id (str): unique id for the worker
     """
     CLASS_BASE_DIR = os.path.dirname(os.path.realpath(__file__))
+    instances = []
 
     def __init__(self, existing_cache: Optional[str] = None) -> None:
         """
@@ -27,6 +29,7 @@ class Worker:
         self._existing_cache: Optional[str] = existing_cache
         self._base_dir: str = str(self.CLASS_BASE_DIR) + "/cache/{}/".format(self.id)
         self._connect_directory()
+        self.__class__.instances.append(weakref.proxy(self))
 
     @staticmethod
     def update_timestamp(cache_path: str) -> None:
@@ -43,11 +46,19 @@ class Worker:
 
     def lock(self) -> None:
         """
-        Sets self._lock to True preventing cleanup
+        Sets self._lock to True preventing cleanup.
 
         :return: None
         """
         self._locked = True
+
+    def unlock(self) -> None:
+        """
+        Sets the self._lock to False enabling cleanup.
+
+        :return: None
+        """
+        self._locked = False
 
     def _connect_directory(self) -> None:
         """
@@ -101,5 +112,13 @@ class Worker:
 
         :return: None
         """
-        if self._locked is False:
+        other_pointers = False
+        for pointer in self.instances:
+            if pointer.base_dir == self.base_dir and pointer.id != self.id:
+                other_pointers = True
+
+        self.instances.remove(weakref.proxy(self))
+        if self._locked is False and other_pointers is False:
             self._delete_directory()
+
+

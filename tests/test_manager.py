@@ -2,7 +2,7 @@
 performs unit tests on the CacheManager object. Use: self.test = CacheManager() to ensure memory safety
 """
 from unittest import TestCase, main
-from mock import patch, MagicMock
+from mock import patch, MagicMock, PropertyMock
 
 from caching import CacheManager, CacheManagerError
 
@@ -22,10 +22,13 @@ class TestCacheManager(TestCase):
         self.assertEqual(True, self.s3_test.s3)
         self.assertEqual("/test/cache/path/", self.s3_test.s3_cache_path)
 
+    @patch("caching.CacheManager.meta", new_callable=PropertyMock)
     @patch("caching.CacheManager._create_meta")
     @patch("caching.S3Worker")
     @patch("caching.Worker")
-    def test_create_cache(self, mock_worker, mock_s3, mock_create_meta):
+    def test_create_cache(self, mock_worker, mock_s3, mock_create_meta, mock_meta):
+        mock_meta.return_value = {}
+
         self.test.create_cache()
         self.assertEqual(mock_worker.return_value, self.test.worker)
         mock_worker.assert_called_once_with(existing_cache=None)
@@ -36,14 +39,31 @@ class TestCacheManager(TestCase):
         self.assertEqual(mock_worker.return_value, self.test.worker)
         mock_worker.assert_called_once_with(existing_cache="test cache")
         mock_create_meta.assert_called_once_with()
+        mock_worker.reset_mock()
+
+        mock_meta.return_value = {"locked": False}
+        self.test.create_cache(existing_cache="test cache")
+        self.assertEqual(mock_worker.return_value, self.test.worker)
+        mock_worker.assert_called_once_with(existing_cache="test cache")
+        mock_create_meta.assert_called_once_with()
+        mock_worker.reset_mock()
+
+        mock_meta.return_value = {"locked": True}
+        self.test.create_cache(existing_cache="test cache")
+        self.assertEqual(mock_worker.return_value, self.test.worker)
+        mock_worker.assert_called_once_with(existing_cache="test cache")
+        mock_create_meta.assert_called_once_with()
+        mock_worker.return_value.lock.assert_called_once_with()
         mock_create_meta.reset_mock()
+        mock_worker.reset_mock()
 
         self.s3_test.create_cache()
         self.assertEqual(mock_s3.return_value, self.s3_test.worker)
         mock_s3.assert_called_once_with(cache_path="/test/cache/path/")
         mock_create_meta.assert_called_once_with()
 
-    def test_lock_cache(self):
+    @patch("caching.CacheManager.insert_meta")
+    def test_lock_cache(self, mock_insert_meta):
         self.test.worker = MagicMock()
         self.test.lock_cache()
         self.test.worker.lock.assert_called_once_with()
@@ -53,6 +73,8 @@ class TestCacheManager(TestCase):
         with self.assertRaises(CacheManagerError) as e:
             self.test.lock_cache()
         self.assertEqual("cache worker is not defined so cannot be locked", str(e.exception))
+
+        mock_insert_meta.assert_called_once_with(key="locked", value=True)
 
     def test_wipe_cache(self):
         self.test.worker = "testing"

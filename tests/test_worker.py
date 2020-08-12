@@ -1,6 +1,7 @@
 from unittest import TestCase, main
 from mock import patch
 from caching.worker import Worker, WorkerCacheError
+import weakref
 
 
 class TestWorker(TestCase):
@@ -13,6 +14,7 @@ class TestWorker(TestCase):
         mock_uuid.return_value = "test"
 
         test = Worker()
+        # test.instances.append(weakref.proxy(test))
 
         mock_os.urandom.assert_called_once_with(16)
         mock_uuid.assert_called_once_with(bytes=mock_os.urandom.return_value, version=4)
@@ -34,6 +36,8 @@ class TestWorker(TestCase):
     @patch("caching.worker.open")
     def test_update_timestamp(self, mock_open, mock_datetime):
         test = Worker
+        test.id = 20
+        test.instances.append(weakref.proxy(test))
         test.update_timestamp(cache_path="test/path/")
         mock_open.assert_called_once_with("test/path/" + "timestamp.txt", "a")
         mock_open.return_value.write.assert_called_once_with("\n" + str(mock_datetime.datetime.now.return_value))
@@ -47,6 +51,8 @@ class TestWorker(TestCase):
         mock_os.path.isdir.return_value = False
 
         test = Worker()
+        test.id = 20
+        test.instances.append(weakref.proxy(test))
         test._locked = True
         test._existing_cache = None
         test._connect_directory()
@@ -69,6 +75,8 @@ class TestWorker(TestCase):
         self.assertEqual(test._base_dir, test._existing_cache)
         mock_generate.assert_called_once_with()
 
+        del test
+
     @patch("caching.worker.Worker.update_timestamp")
     @patch("caching.worker.os")
     @patch("caching.worker.Worker._delete_directory")
@@ -78,6 +86,8 @@ class TestWorker(TestCase):
         mock_os.path.isdir.return_value = False
 
         test = Worker()
+        test.id = 20
+        test.instances.append(weakref.proxy(test))
         test._base_dir = "test dir"
         test.timestamp = "test timestamp"
         test._locked = False
@@ -106,6 +116,8 @@ class TestWorker(TestCase):
         mock_os.path.isdir.return_value = True
 
         test = Worker()
+        test.id = 20
+        test.instances.append(weakref.proxy(test))
         test._base_dir = "test dir"
         test._locked = False
         test._delete_directory()
@@ -118,6 +130,8 @@ class TestWorker(TestCase):
     def test_base_dir(self, mock_init, mock_delete):
         mock_init.return_value = None
         test = Worker()
+        test.id = 20
+        test.instances.append(weakref.proxy(test))
         test._base_dir = "test dir"
         test._locked = False
 
@@ -132,6 +146,9 @@ class TestWorker(TestCase):
     def test_lock(self, mock_init, mock_delete):
         mock_init.return_value = None
         test = Worker()
+        test.id = 20
+        test._base_dir = "test"
+        test.instances.append(weakref.proxy(test))
         test._locked = False
         test.lock()
         self.assertEqual(True, test._locked)

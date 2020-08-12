@@ -22,6 +22,7 @@ class S3Worker:
         self.base_dir: str = cache_path + "{}/".format(self.id)
         self._cached_files: List[Any] = []
         self._connection = boto3.client('s3')
+        self._locked: bool = False
 
     def _delete_directory(self) -> None:
         """

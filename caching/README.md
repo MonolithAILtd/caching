@@ -11,9 +11,13 @@ The following structure defines the module:
 ├── README.md
 ├── __init__.py
 ├── cache
-│   └── __init__.py
+│   ├── __init__.py
 ├── errors.py
+├── s3_worker.py
+├── singleton.py
 └── worker.py
+
+
 ```
 The ```CacheManager``` is stored in the ```__init__.py```. This manages the interaction between the user and workers to ensure that no caches are hiding in the memory. Workers can be directly imported and used if you want but it's not recommended. 
 
@@ -61,10 +65,7 @@ MECHANISM IF YOU ENABLE THIS. PLEASE SPEAK TO MAXWELL WHEN IMPLEMENTING A LOCK.
 This module is small and simple, has scope, and can be used in places outside the server such as exploratory data science using notebooks:
 
 - **multiple workers**: Right now this isn't needed and I feel and introducing it before it's needed with just add extra complexity. However, it is a possibility later on. A cache manager could manage a pool of workers. 
--  **pip**: Due to it's simplicity and potential use outside of a server, this could be an ideal module to be packaged with pip. referencing temp files could have uses in data science and areas where keeping data isn't a good idea for security of storage size.
 -  **open source**: This module is not going to make or break our company. Other people having it will not damage us in a business sense. There is potential gain from releasing this to an open source in terms of a bit on nice publicity and potentially other developers contributing and improving it. 
 - **lock for S3**: Right now only local file locks for caching work. 
-- **general_filemanager dependancy**: Right the S3 worker relies on the general_filemanager for deleting, this needs to 
-be removed and replaced with it's own S3 connection and path management.
-- **long lived vs short lived**: Create a switch that enables the worker to be long lived or not. Short lived is local 
-where as long lived is S3.
+- **enable s3**: Some features for s3 are not supported 
+- **functional tests for s3**: Functional tests that are connecting to s3 need to be done
