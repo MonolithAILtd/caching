@@ -15,7 +15,7 @@ class Monitor(dict, metaclass=Singleton):
         """
         self.id: UUID = UUID(bytes=os.urandom(16), version=4)
         self._base_dir: str = str(self.CLASS_BASE_DIR) + "/cache/{}/".format(self.id)
-        super().__init__(map([self.id, self._base_dir]))
+        super().__init__([(self.id, self._base_dir)])
 
     @property
     def base_dir(self):
@@ -28,7 +28,7 @@ class Monitor(dict, metaclass=Singleton):
         :return: None
         """
         other_pointers = False
-        for k, v in self.iteritems():
+        for k, v in self.items():
             if v == self.base_dir and k != self.id:
                 other_pointers = True
 
