@@ -147,6 +147,7 @@ class TestWorker(TestCase):
         mock_init.return_value = None
         test = Worker()
         test.id = 20
+        test._base_dir = "test"
         test.instances.append(weakref.proxy(test))
         test._locked = False
         test.lock()

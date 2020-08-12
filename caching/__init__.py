@@ -23,7 +23,7 @@ class CacheManager:
         :param s3: (bool) is True, connect to s3
         :param s3_cache_path: (Optional[str]) path to the cache in the s3
         """
-        self.worker: Optional[Worker] = None
+        self.worker: Union[None, Worker, S3Worker] = None
         self.s3: bool = s3
         self.s3_cache_path: Optional[str] = s3_cache_path
 
