@@ -5,9 +5,13 @@ from unittest import TestCase, main
 import json
 
 from caching import CacheManager
+from singleton import Singleton
 
 
 class TestCacheManager(TestCase):
+
+    def tearDown(self) -> None:
+        Singleton.instance = {}
 
     @staticmethod
     def get_meta_data(meta_data_path: str) -> Dict:

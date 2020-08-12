@@ -6,6 +6,9 @@ import shutil
 from typing import Optional
 
 from caching.errors import WorkerCacheError
+from caching.monitor import Monitor
+
+monitor = Monitor()
 
 
 class Worker:
@@ -16,7 +19,6 @@ class Worker:
         id (str): unique id for the worker
     """
     CLASS_BASE_DIR = os.path.dirname(os.path.realpath(__file__))
-    instances = []
 
     def __init__(self, existing_cache: Optional[str] = None) -> None:
         """
@@ -25,11 +27,11 @@ class Worker:
         :param existing_cache: (Optional[str]) path to existing cache
         """
         self._locked: bool = False
-        self.id: UUID = UUID(bytes=os.urandom(16), version=4)
+        self.id: str = str(UUID(bytes=os.urandom(16), version=4))
         self._existing_cache: Optional[str] = existing_cache
         self._base_dir: str = str(self.CLASS_BASE_DIR) + "/cache/{}/".format(self.id)
         self._connect_directory()
-        self.__class__.instances.append(weakref.proxy(self))
+        monitor[self.id] = self._base_dir
 
     @staticmethod
     def update_timestamp(cache_path: str) -> None:
@@ -96,11 +98,7 @@ class Worker:
 
         :return: None
         """
-        if not os.path.isdir(self._base_dir):
-            raise WorkerCacheError(
-                "directory {} does not exist. please check __del__ and self._delete_directory methods".format(
-                    self._base_dir))
-        shutil.rmtree(self._base_dir)
+        monitor.delete_cache(entry_id=self.id)
 
     @property
     def base_dir(self) -> str:
@@ -112,13 +110,5 @@ class Worker:
 
         :return: None
         """
-        other_pointers = False
-        for pointer in self.instances:
-            if pointer.base_dir == self.base_dir and pointer.id != self.id:
-                other_pointers = True
-
-        self.instances.remove(weakref.proxy(self))
-        if self._locked is False and other_pointers is False:
+        if self._locked is False:
             self._delete_directory()
-
-

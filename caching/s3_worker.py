@@ -18,7 +18,7 @@ class S3Worker:
         """
         The constructor for the S3Worker.
         """
-        self.id: UUID = UUID(bytes=os.urandom(16), version=4)
+        self.id: str = str(UUID(bytes=os.urandom(16), version=4))
         self.base_dir: str = cache_path + "{}/".format(self.id)
         self._cached_files: List[Any] = []
         self._connection = boto3.client('s3')
