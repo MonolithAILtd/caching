@@ -121,11 +121,11 @@ class TestCacheManager(TestCase):
     def test___enter__(self, mock_create_cache, mock_wipe_cache):
         self.test = CacheManager()
 
-        with self.test:
-            pass
+        with self.test as cache:
+            self.assertEqual(self.test, cache)
 
         mock_create_cache.assert_called_once_with()
-        mock_wipe_cache.assert_called_once_with()
+        self.assertEqual(2, len(mock_wipe_cache.call_args_list))
 
 
 if __name__ == "__main__":

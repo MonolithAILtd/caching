@@ -5,9 +5,13 @@ from unittest import TestCase, main
 import json
 
 from caching import CacheManager
+from singleton import Singleton
 
 
 class TestCacheManager(TestCase):
+
+    def tearDown(self) -> None:
+        Singleton.instance = {}
 
     @staticmethod
     def get_meta_data(meta_data_path: str) -> Dict:
@@ -64,16 +68,13 @@ class TestCacheManager(TestCase):
 
         new_test = CacheManager()
         new_test.create_cache(existing_cache=existing_cach_path)
-
         self.assertEqual({"locked": True}, new_test.meta)
         self.assertEqual(True, new_test.worker._locked)
         self.assertEqual(True, os.path.isdir(existing_cach_path))
-
         new_test.unlock_cache()
         self.assertEqual({"locked": False}, new_test.meta)
         self.assertEqual(False, new_test.worker._locked)
         self.assertEqual(True, os.path.isdir(existing_cach_path))
-
         del new_test
         self.assertEqual(False, os.path.isdir(existing_cach_path))
 
