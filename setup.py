@@ -18,7 +18,7 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/MonolithAILtd/caching",
-    packages=find_packages(include="caching.*", exclude="tests"),
+    packages=find_packages(include="caching.*", exclude=["tests"]),
     install_requires=install_requires,
     classifiers=[
         "Development Status :: 4 - Beta"
