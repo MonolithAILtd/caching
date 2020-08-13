@@ -86,6 +86,20 @@ class TestMonitor(TestCase):
         self.assertEqual(0, len(mock_shutil.rmtree.call_args_list))
         self.assertEqual({}, test)
 
+        mock_os.reset_mock()
+        mock_shutil.reset_mock()
+
+        # one where cache is locked
+        test.update({
+            "1": "cache/path/one/"
+        })
+        mock_os.path.isdir.return_value = True
+        test.delete_cache(entry_id="1", locked=True)
+
+        mock_os.path.isdir.assert_called_once_with("cache/path/one/")
+        self.assertEqual(0, len(mock_shutil.rmtree.call_args_list))
+        self.assertEqual({}, test)
+
 
 if __name__ == "__main__":
     main()

@@ -126,6 +126,9 @@ class CacheManager:
             data = json.load(meta_file)
         return data
 
+    def __del__(self):
+        self.wipe_cache()
+
     def __enter__(self):
         self.create_cache()
         return self

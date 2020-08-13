@@ -1,21 +1,19 @@
 from unittest import TestCase, main
 from mock import patch
 from caching.worker import Worker, WorkerCacheError
-import weakref
 
 
 class TestWorker(TestCase):
 
+    @patch("caching.worker.Monitor")
     @patch("caching.worker.os")
     @patch("caching.worker.Worker._delete_directory")
     @patch("caching.worker.Worker._connect_directory")
     @patch("caching.worker.UUID")
-    def test___init__(self, mock_uuid, mock_connect_directory, mock_delete_directory, mock_os):
+    def test___init__(self, mock_uuid, mock_connect_directory, mock_delete_directory, mock_os, mock_monitor):
         mock_uuid.return_value = "test"
 
         test = Worker()
-        # test.instances.append(weakref.proxy(test))
-
         mock_os.urandom.assert_called_once_with(16)
         mock_uuid.assert_called_once_with(bytes=mock_os.urandom.return_value, version=4)
         self.assertEqual(mock_uuid.return_value, test.id)
@@ -23,6 +21,8 @@ class TestWorker(TestCase):
         self.assertEqual(str(test.CLASS_BASE_DIR) + "/cache/{}/".format(test.id),
                          test._base_dir)
         self.assertEqual(False, test._locked)
+        mock_monitor.return_value.__setitem__.assert_called_once_with("test", test._base_dir)
+        mock_monitor.reset_mock()
 
         del test
 
@@ -31,13 +31,14 @@ class TestWorker(TestCase):
 
         test = Worker(existing_cache="test")
         self.assertEqual("test", test._existing_cache)
+        mock_monitor.return_value.__setitem__.assert_called_once_with("test", test._base_dir)
+        mock_monitor.reset_mock()
 
     @patch("caching.worker.datetime")
     @patch("caching.worker.open")
     def test_update_timestamp(self, mock_open, mock_datetime):
         test = Worker
         test.id = 20
-        test.instances.append(weakref.proxy(test))
         test.update_timestamp(cache_path="test/path/")
         mock_open.assert_called_once_with("test/path/" + "timestamp.txt", "a")
         mock_open.return_value.write.assert_called_once_with("\n" + str(mock_datetime.datetime.now.return_value))
@@ -52,7 +53,6 @@ class TestWorker(TestCase):
 
         test = Worker()
         test.id = 20
-        test.instances.append(weakref.proxy(test))
         test._locked = True
         test._existing_cache = None
         test._connect_directory()
@@ -87,7 +87,6 @@ class TestWorker(TestCase):
 
         test = Worker()
         test.id = 20
-        test.instances.append(weakref.proxy(test))
         test._base_dir = "test dir"
         test.timestamp = "test timestamp"
         test._locked = False
@@ -108,32 +107,23 @@ class TestWorker(TestCase):
 
         mock_delete_directory.assert_called_once_with()
 
-    @patch("caching.worker.shutil")
-    @patch("caching.worker.os")
+    @patch("caching.worker.Monitor")
     @patch("caching.worker.Worker.__init__")
-    def test__delete_directory(self, mock_init, mock_os, mock_shutil):
+    def test__delete_directory(self, mock_init, mock_monitor):
         mock_init.return_value = None
-        mock_os.path.isdir.return_value = True
 
         test = Worker()
-        test.id = 20
-        test.instances.append(weakref.proxy(test))
-        test._base_dir = "test dir"
-        test._locked = False
+        test.id = "test id"
+        test._locked = "test lock"
         test._delete_directory()
-
-        mock_os.path.isdir.assert_called_once_with(test._base_dir)
-        mock_shutil.rmtree.assert_called_once_with(test._base_dir)
+        mock_monitor.return_value.delete_cache.assert_called_once_with(entry_id="test id", locked="test lock")
 
     @patch("caching.worker.Worker._delete_directory")
     @patch("caching.worker.Worker.__init__")
     def test_base_dir(self, mock_init, mock_delete):
         mock_init.return_value = None
         test = Worker()
-        test.id = 20
-        test.instances.append(weakref.proxy(test))
         test._base_dir = "test dir"
-        test._locked = False
 
         self.assertEqual(test._base_dir, test.base_dir)
 
@@ -148,13 +138,13 @@ class TestWorker(TestCase):
         test = Worker()
         test.id = 20
         test._base_dir = "test"
-        test.instances.append(weakref.proxy(test))
         test._locked = False
         test.lock()
         self.assertEqual(True, test._locked)
 
         del test
-        self.assertEqual(0, len(mock_delete.call_args_list))
+
+        mock_delete.assert_called_once_with()
 
 
 if __name__ == "__main__":

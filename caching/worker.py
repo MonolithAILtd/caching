@@ -1,14 +1,10 @@
 import datetime
-import weakref
 from uuid import UUID
 import os
-import shutil
 from typing import Optional
 
 from caching.errors import WorkerCacheError
 from caching.monitor import Monitor
-
-monitor = Monitor()
 
 
 class Worker:
@@ -31,7 +27,7 @@ class Worker:
         self._existing_cache: Optional[str] = existing_cache
         self._base_dir: str = str(self.CLASS_BASE_DIR) + "/cache/{}/".format(self.id)
         self._connect_directory()
-        monitor[self.id] = self._base_dir
+        Monitor()[self.id] = self._base_dir
 
     @staticmethod
     def update_timestamp(cache_path: str) -> None:
@@ -98,7 +94,7 @@ class Worker:
 
         :return: None
         """
-        monitor.delete_cache(entry_id=self.id)
+        Monitor().delete_cache(entry_id=self.id, locked=self._locked)
 
     @property
     def base_dir(self) -> str:
@@ -110,5 +106,4 @@ class Worker:
 
         :return: None
         """
-        if self._locked is False:
-            self._delete_directory()
+        self._delete_directory()
