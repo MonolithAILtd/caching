@@ -25,6 +25,7 @@ class CacheManager:
         :param s3_cache_path: (Optional[str]) path to the cache in the s3
         """
         self.worker: Union[None, Worker, S3Worker] = None
+        # pylint: disable=invalid-name
         self.s3: bool = s3
         self.s3_cache_path: Optional[str] = s3_cache_path
 
@@ -133,5 +134,6 @@ class CacheManager:
         self.create_cache()
         return self
 
+    # pylint: disable=redefined-builtin
     def __exit__(self, type, value, traceback):
         self.wipe_cache()

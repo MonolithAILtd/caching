@@ -24,6 +24,7 @@ class Worker:
         :param existing_cache: (Optional[str]) path to existing cache
         """
         self._locked: bool = False
+        # pylint: disable=invalid-name
         self.id: str = str(UUID(bytes=os.urandom(16), version=4))
         self._existing_cache: Optional[str] = existing_cache
         self._base_dir: str = str(self.CLASS_BASE_DIR) + "/cache/{}/".format(self.id)

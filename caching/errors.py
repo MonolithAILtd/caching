@@ -1,4 +1,5 @@
 """this file defines the errors"""
+# pylint: disable=useless-super-delegation
 
 
 class WorkerCacheError(Exception):
