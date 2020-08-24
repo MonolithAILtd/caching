@@ -6,6 +6,7 @@ import os
 import boto3
 
 
+# pylint: disable=too-few-public-methods
 class S3Worker:
     """
     This is a class for managing a directory for temp files in S3.
@@ -19,6 +20,7 @@ class S3Worker:
         """
         The constructor for the S3Worker.
         """
+        # pylint: disable=invalid-name
         self.id: str = str(UUID(bytes=os.urandom(16), version=4))
         self.base_dir: str = cache_path + "{}/".format(self.id)
         self._cached_files: List[Any] = []
