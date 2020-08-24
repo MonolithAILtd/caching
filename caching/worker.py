@@ -1,3 +1,4 @@
+"""this file defines the worker for managing local cache directories"""
 import datetime
 from uuid import UUID
 import os
@@ -38,9 +39,9 @@ class Worker:
         :return:
         """
         timestamp = datetime.datetime.now()
-        f = open(cache_path + "timestamp.txt", "a")
-        f.write("\n{}".format(timestamp))
-        f.close()
+        file = open(cache_path + "timestamp.txt", "a")
+        file.write("\n{}".format(timestamp))
+        file.close()
 
     def lock(self) -> None:
         """
@@ -67,11 +68,10 @@ class Worker:
         if self._existing_cache is not None:
             if not os.path.isdir(self._existing_cache):
                 raise WorkerCacheError(
-                    message="directory '{}' was supplied as an existing cache but does not exist".format(
-                        self._existing_cache)
+                    message="directory '{}' was supplied as an existing cache but does not exist".
+                    format(self._existing_cache)
                 )
-            else:
-                self._base_dir = self._existing_cache
+            self._base_dir = self._existing_cache
         else:
             self._generate_directory()
 
@@ -82,9 +82,10 @@ class Worker:
         :return: None
         """
         if os.path.isdir(self._base_dir):
-            raise WorkerCacheError(message="directory {} already exists. Check __del__ and self.id methods".format(
-                self._base_dir
-            ))
+            raise WorkerCacheError(
+                message="directory {} already exists. Check __del__ and self.id methods".
+                format(self._base_dir)
+            )
         os.mkdir(self._base_dir)
         self.update_timestamp(cache_path=self._base_dir)
 
@@ -98,6 +99,11 @@ class Worker:
 
     @property
     def base_dir(self) -> str:
+        """
+        Dynamic property that defines the base directory for the cache.
+
+        :return: (str) the base directory of the cache
+        """
         return self._base_dir
 
     def __del__(self):

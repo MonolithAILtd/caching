@@ -1,3 +1,4 @@
+"""This module manages the cache directories"""
 import json
 from typing import Union, Optional, Dict
 
@@ -112,8 +113,7 @@ class CacheManager:
         """
         if self.worker:
             return self.worker.base_dir
-        else:
-            return None
+        return None
 
     @property
     def meta(self) -> Dict:

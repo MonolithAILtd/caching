@@ -1,3 +1,4 @@
+"""Defines the meta class singleton design pattern via meta classing"""
 
 
 class Singleton(type):

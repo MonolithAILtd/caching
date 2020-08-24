@@ -1,3 +1,4 @@
+"""this file defines the worker for pointing to caches in s3 buckets"""
 from typing import Tuple, List, Any
 from uuid import UUID
 import os
@@ -30,8 +31,7 @@ class S3Worker:
 
         :return: None
         """
-        bucket_name, file_name, short_file_name = self._split_s3_path(storage_path=self.base_dir)
-        # bucket = self._connection.Bucket(bucket_name)
+        _, file_name, short_file_name = self._split_s3_path(storage_path=self.base_dir)
         file_prefix = file_name.replace(short_file_name, "")
         self._connection.delete_bucket(Bucket=file_prefix)
 

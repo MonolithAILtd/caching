@@ -1,7 +1,9 @@
-from caching.singleton import Singleton
-from caching.errors import MonitorError
+"""This file defines the monitoring of the threads"""
 import os
 import shutil
+
+from caching.singleton import Singleton
+from caching.errors import MonitorError
 
 
 class Monitor(dict, metaclass=Singleton):
@@ -12,11 +14,12 @@ class Monitor(dict, metaclass=Singleton):
         """
         The constructor for the Monitor object.
         """
-        super().__init__()
+        super().__init__({})
 
     def __setitem__(self, key: str, value: str) -> None:
         """
-        Overwrites the set item function for the dictionary to check key and value are strings before assignment.
+        Overwrites the set item function for the dictionary to check key and value are
+        strings before assignment.
 
         :param key: (str) the key to be assigned the value
         :param value: (str) the value to be assigned to the key
