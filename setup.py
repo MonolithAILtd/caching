@@ -40,7 +40,7 @@ setuptools.setup(
     ],
     python_requires='>=3',
     tests_require=['pytest'],
-    # ext_modules=cythonize("caching/**/*.py", exclude="tests/**/*.py", compiler_directives=directives, nthreads=4),
+    ext_modules=cythonize("caching/**/*.py", exclude="tests/**/*.py", compiler_directives=directives, nthreads=4),
     cmdclass={'build_py': CustomBuildPy},
     include_package_data=False,
     options={"bdist_wheel": {"universal": "1"}}
