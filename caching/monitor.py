@@ -2,8 +2,8 @@
 import os
 import shutil
 
-from caching.singleton import Singleton
-from caching.errors import MonitorError
+from .singleton import Singleton
+from .errors import MonitorError
 
 
 class Monitor(dict, metaclass=Singleton):

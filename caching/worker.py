@@ -4,8 +4,8 @@ from uuid import UUID
 import os
 from typing import Optional
 
-from caching.errors import WorkerCacheError
-from caching.monitor import Monitor
+from .errors import WorkerCacheError
+from .monitor import Monitor
 
 
 class Worker:
