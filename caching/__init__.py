@@ -2,9 +2,9 @@
 import json
 from typing import Union, Optional, Dict
 
-from caching.errors import CacheManagerError
-from caching.worker import Worker
-from caching.s3_worker import S3Worker
+from .errors import CacheManagerError
+from .worker import Worker
+from .s3_worker import S3Worker
 
 
 class CacheManager:
