@@ -17,17 +17,19 @@ class Worker:
     """
     CLASS_BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
-    def __init__(self, existing_cache: Optional[str] = None) -> None:
+    def __init__(self, existing_cache: Optional[str] = None, local_cache: Optional[str] = None) -> None:
         """
         The constructor for the Worker class.
 
         :param existing_cache: (Optional[str]) path to existing cache
+        :param local_cache: (Optional[str]) path to the local cache
         """
         self._locked: bool = False
         # pylint: disable=invalid-name
         self.id: str = str(UUID(bytes=os.urandom(16), version=4))
         self._existing_cache: Optional[str] = existing_cache
-        self._base_dir: str = str(self.CLASS_BASE_DIR) + "/cache/{}/".format(self.id)
+        self.class_base_dir: str = self.CLASS_BASE_DIR if local_cache is None else local_cache
+        self._base_dir: str = str(self.class_base_dir) + "/cache/{}/".format(self.id)
         self._connect_directory()
         Monitor()[self.id] = self._base_dir
 
@@ -36,7 +38,7 @@ class Worker:
         """
         Updates the cache timestamp.txt log with a new timestamp
 
-        :param cache_path:
+        :param cache_path: (str) path to the cache being
         :return:
         """
         timestamp = datetime.datetime.now()

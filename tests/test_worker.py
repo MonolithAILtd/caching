@@ -21,6 +21,7 @@ class TestWorker(TestCase):
         self.assertEqual(str(test.CLASS_BASE_DIR) + "/cache/{}/".format(test.id),
                          test._base_dir)
         self.assertEqual(False, test._locked)
+        self.assertEqual(str(test.CLASS_BASE_DIR), test.class_base_dir)
         mock_monitor.return_value.__setitem__.assert_called_once_with("test", test._base_dir)
         mock_monitor.reset_mock()
 
@@ -33,6 +34,10 @@ class TestWorker(TestCase):
         self.assertEqual("test", test._existing_cache)
         mock_monitor.return_value.__setitem__.assert_called_once_with("test", test._base_dir)
         mock_monitor.reset_mock()
+
+        test = Worker(local_cache="testing")
+        self.assertEqual("testing", test.class_base_dir)
+        self.assertEqual("testing/cache/test/", test._base_dir)
 
     @patch("caching.worker.datetime")
     @patch("caching.worker.open")
