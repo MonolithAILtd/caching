@@ -9,7 +9,7 @@ from caching import CacheManager, CacheManagerError
 
 class TestCacheManager(TestCase):
 
-    def setUp(self, mock__connect_directory):
+    def setUp(self):
         self.test = CacheManager()
         self.s3_test = CacheManager(s3=True, s3_cache_path="/test/cache/path/")
 
