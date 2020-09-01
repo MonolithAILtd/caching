@@ -37,21 +37,21 @@ class TestCacheManager(TestCase):
 
         self.test.create_cache(existing_cache="test cache")
         self.assertEqual(mock_worker.return_value, self.test.worker)
-        mock_worker.assert_called_once_with(existing_cache="test cache")
+        mock_worker.assert_called_once_with(existing_cache="test cache", local_cache=None)
         mock_create_meta.assert_called_once_with()
         mock_worker.reset_mock()
 
         mock_meta.return_value = {"locked": False}
         self.test.create_cache(existing_cache="test cache")
         self.assertEqual(mock_worker.return_value, self.test.worker)
-        mock_worker.assert_called_once_with(existing_cache="test cache")
+        mock_worker.assert_called_once_with(existing_cache="test cache", local_cache=None)
         mock_create_meta.assert_called_once_with()
         mock_worker.reset_mock()
 
         mock_meta.return_value = {"locked": True}
         self.test.create_cache(existing_cache="test cache")
         self.assertEqual(mock_worker.return_value, self.test.worker)
-        mock_worker.assert_called_once_with(existing_cache="test cache")
+        mock_worker.assert_called_once_with(existing_cache="test cache", local_cache=None)
         mock_create_meta.assert_called_once_with()
         mock_worker.return_value.lock.assert_called_once_with()
         mock_create_meta.reset_mock()
