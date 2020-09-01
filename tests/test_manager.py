@@ -31,7 +31,7 @@ class TestCacheManager(TestCase):
 
         self.test.create_cache()
         self.assertEqual(mock_worker.return_value, self.test.worker)
-        mock_worker.assert_called_once_with(existing_cache=None)
+        mock_worker.assert_called_once_with(existing_cache=None, local_cache=None)
         mock_worker.reset_mock()
         mock_create_meta.assert_called_once_with()
 
