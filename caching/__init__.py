@@ -15,19 +15,22 @@ class CacheManager:
         worker (caching.worker.Worker): worker object that manages the access to the cache
         s3 (bool): if True, use S3 instead of local file storage
         s3_cache_path (Optional[str]): path to the cache in the s3
+        local_cache_path (Optional[str]): path to the local cache
     """
 
-    def __init__(self, s3: bool = False, s3_cache_path: Optional[str] = None):
+    def __init__(self, s3: bool = False, s3_cache_path: Optional[str] = None, local_cache_path: Optional[str] = None) -> None:
         """
         The constructor for the CacheManager class.
 
         :param s3: (bool) is True, connect to s3
         :param s3_cache_path: (Optional[str]) path to the cache in the s3
+        :param local_cache_path: (Optional[str]) path to the local cache
         """
         self.worker: Union[None, Worker, S3Worker] = None
         # pylint: disable=invalid-name
         self.s3: bool = s3
         self.s3_cache_path: Optional[str] = s3_cache_path
+        self.local_cache_path: Optional[str] = local_cache_path
 
     def create_cache(self, existing_cache: Optional[str] = None) -> None:
         """
@@ -41,7 +44,7 @@ class CacheManager:
             self.worker = S3Worker(cache_path=self.s3_cache_path)
             self._create_meta()
         else:
-            self.worker = Worker(existing_cache=existing_cache)
+            self.worker = Worker(existing_cache=existing_cache, local_cache=self.local_cache_path)
             if existing_cache is None:
                 self._create_meta()
             else:
