@@ -10,8 +10,8 @@ from caching import CacheManager, CacheManagerError
 class TestCacheManager(TestCase):
 
     def setUp(self):
-        self.test = CacheManager()
-        self.s3_test = CacheManager(s3=True, s3_cache_path="/test/cache/path/")
+        self.test = CacheManager(host="localhost", port=6379)
+        self.s3_test = CacheManager(host="localhost", port=6379, s3=True, s3_cache_path="/test/cache/path/")
 
     def test___init__(self):
         self.assertEqual(None, self.test.worker)
@@ -31,27 +31,27 @@ class TestCacheManager(TestCase):
 
         self.test.create_cache()
         self.assertEqual(mock_worker.return_value, self.test.worker)
-        mock_worker.assert_called_once_with(existing_cache=None, local_cache=None)
+        mock_worker.assert_called_once_with(host="localhost", port=6379, existing_cache=None, local_cache=None)
         mock_worker.reset_mock()
         mock_create_meta.assert_called_once_with()
 
         self.test.create_cache(existing_cache="test cache")
         self.assertEqual(mock_worker.return_value, self.test.worker)
-        mock_worker.assert_called_once_with(existing_cache="test cache", local_cache=None)
+        mock_worker.assert_called_once_with(host="localhost", port=6379, existing_cache="test cache", local_cache=None)
         mock_create_meta.assert_called_once_with()
         mock_worker.reset_mock()
 
         mock_meta.return_value = {"locked": False}
         self.test.create_cache(existing_cache="test cache")
         self.assertEqual(mock_worker.return_value, self.test.worker)
-        mock_worker.assert_called_once_with(existing_cache="test cache", local_cache=None)
+        mock_worker.assert_called_once_with(host="localhost", port=6379, existing_cache="test cache", local_cache=None)
         mock_create_meta.assert_called_once_with()
         mock_worker.reset_mock()
 
         mock_meta.return_value = {"locked": True}
         self.test.create_cache(existing_cache="test cache")
         self.assertEqual(mock_worker.return_value, self.test.worker)
-        mock_worker.assert_called_once_with(existing_cache="test cache", local_cache=None)
+        mock_worker.assert_called_once_with(host="localhost", port=6379, existing_cache="test cache", local_cache=None)
         mock_create_meta.assert_called_once_with()
         mock_worker.return_value.lock.assert_called_once_with()
         mock_create_meta.reset_mock()
@@ -119,7 +119,7 @@ class TestCacheManager(TestCase):
     @patch("caching.CacheManager.wipe_cache")
     @patch("caching.CacheManager.create_cache")
     def test___enter__(self, mock_create_cache, mock_wipe_cache):
-        self.test = CacheManager()
+        self.test = CacheManager(host="localhost", port=6379)
 
         with self.test as cache:
             self.assertEqual(self.test, cache)

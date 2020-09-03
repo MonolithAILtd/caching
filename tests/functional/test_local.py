@@ -5,13 +5,9 @@ from unittest import TestCase, main
 import json
 
 from caching import CacheManager
-from singleton import Singleton
 
 
 class TestCacheManager(TestCase):
-
-    def tearDown(self) -> None:
-        Singleton.instance = {}
 
     @staticmethod
     def get_meta_data(meta_data_path: str) -> Dict:
@@ -20,7 +16,7 @@ class TestCacheManager(TestCase):
         return meta
 
     def test_cache(self):
-        test = CacheManager()
+        test = CacheManager(host="localhost", port=6379)
         test.create_cache()
 
         cache_directory_check = test.worker.base_dir
@@ -40,7 +36,7 @@ class TestCacheManager(TestCase):
         self.assertEqual({"one": 1, "two": 2}, self.get_meta_data(meta_data_path=meta_file_path))
         self.assertEqual({"one": 1, "two": 2}, test.meta)
 
-        existing_test = CacheManager()
+        existing_test = CacheManager(host="localhost", port=6379)
         existing_test.create_cache(existing_cache=test.cache_path)
 
         existing_test.insert_meta(key="three", value=3)
@@ -57,7 +53,7 @@ class TestCacheManager(TestCase):
         self.assertEqual(False, os.path.isdir(existing_cach_path))
 
     def test_lock(self):
-        test = CacheManager()
+        test = CacheManager(host="localhost", port=6379)
         test.create_cache()
 
         self.assertEqual({}, test.meta)
@@ -66,7 +62,7 @@ class TestCacheManager(TestCase):
         existing_cach_path = test.cache_path
         del test
 
-        new_test = CacheManager()
+        new_test = CacheManager(host="localhost", port=6379)
         new_test.create_cache(existing_cache=existing_cach_path)
         self.assertEqual({"locked": True}, new_test.meta)
         self.assertEqual(True, new_test.worker._locked)

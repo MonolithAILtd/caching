@@ -3,9 +3,10 @@ import datetime
 from uuid import UUID
 import os
 from typing import Optional
+import shutil
 
 from .errors import WorkerCacheError
-from .monitor import Monitor
+from .register import Register
 
 
 class Worker:
@@ -17,21 +18,25 @@ class Worker:
     """
     CLASS_BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
-    def __init__(self, existing_cache: Optional[str] = None, local_cache: Optional[str] = None) -> None:
+    def __init__(self, port: int, host: str, existing_cache: Optional[str] = None, local_cache: Optional[str] = None) -> None:
         """
         The constructor for the Worker class.
 
+        :param port: (int) port for the redis connection tracking caches
+        :param host: (str) host for the redis connection tracking caches
         :param existing_cache: (Optional[str]) path to existing cache
         :param local_cache: (Optional[str]) path to the local cache
         """
         self._locked: bool = False
+        self._port: int = port
+        self._host: str = host
         # pylint: disable=invalid-name
         self.id: str = str(UUID(bytes=os.urandom(16), version=4))
         self._existing_cache: Optional[str] = existing_cache
         self.class_base_dir: str = self.CLASS_BASE_DIR if local_cache is None else local_cache
         self._base_dir: str = str(self.class_base_dir) + "/cache/{}/".format(self.id)
         self._connect_directory()
-        Monitor()[self.id] = self._base_dir
+        Register(host=self._host, port=self._port).register_cache(cache_path=self.base_dir)
 
     @staticmethod
     def update_timestamp(cache_path: str) -> None:
@@ -98,7 +103,10 @@ class Worker:
 
         :return: None
         """
-        Monitor().delete_cache(entry_id=self.id, locked=self._locked)
+        count: int = Register(host=self._host, port=self._port).deregister_cache(cache_path=self.base_dir,
+                                                                                 locked=self._locked)
+        if count == 0 and self._locked is False:
+            shutil.rmtree(self.base_dir)
 
     @property
     def base_dir(self) -> str:
