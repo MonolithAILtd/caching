@@ -7,9 +7,8 @@ from caching.s3_worker import S3Worker
 class TestS3Worker(TestCase):
 
     @patch("caching.s3_worker.os")
-    @patch("caching.s3_worker.S3Worker._delete_directory")
     @patch("caching.s3_worker.UUID")
-    def test___init__(self, mock_uuid, mock_delete_directory, mock_os):
+    def test___init__(self, mock_uuid, mock_os):
         mock_uuid.return_value = "test"
 
         test = S3Worker(cache_path="/path/to/cache/")
@@ -17,10 +16,6 @@ class TestS3Worker(TestCase):
         mock_uuid.assert_called_once_with(bytes=mock_os.urandom.return_value, version=4)
         self.assertEqual(mock_uuid.return_value, test.id)
         self.assertEqual("/path/to/cache" + "/{}/".format(test.id), test.base_dir)
-
-        del test
-
-        mock_delete_directory.assert_called_once_with()
 
     @patch("caching.s3_worker.S3Worker._split_s3_path")
     @patch("caching.s3_worker.S3Worker.__init__")
@@ -31,9 +26,6 @@ class TestS3Worker(TestCase):
         connection = MagicMock()
         test._connection = connection
         test.base_dir = "s3://bucket/directory/to/cache/"
-        del test
-
-        connection.delete_bucket.assert_called_once_with(Bucket='test/file/')
 
     def test__split_s3_path(self):
         bucket_name, file_name, short_file_name = S3Worker._split_s3_path(
