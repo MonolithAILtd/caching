@@ -63,8 +63,9 @@ class CacheManager:
         """
         if self.worker is None:
             raise CacheManagerError(message="cache worker is not defined so cannot be locked")
-        self.worker.lock()
-        self.insert_meta(key="locked", value=True)
+        if self.s3 is False:
+            self.worker.lock()
+            self.insert_meta(key="locked", value=True)
 
     def unlock_cache(self) -> None:
         """
@@ -74,8 +75,9 @@ class CacheManager:
         """
         if self.worker is None:
             raise CacheManagerError(message="cache worker is not defined so cannot be unlocked")
-        self.worker.unlock()
-        self.insert_meta(key="locked", value=False)
+        if self.s3 is False:
+            self.worker.unlock()
+            self.insert_meta(key="locked", value=False)
 
     def wipe_cache(self) -> None:
         """
@@ -94,14 +96,15 @@ class CacheManager:
         :param value: (Union[str, int, float, dict, list]) data to be stored
         :return: None
         """
-        path = self.worker.base_dir + "meta.json"
-        with open(path) as meta_file:
-            data = json.load(meta_file)
+        if self.s3 is False:
+            path = self.worker.base_dir + "meta.json"
+            with open(path) as meta_file:
+                data = json.load(meta_file)
 
-        data[key] = value
+            data[key] = value
 
-        with open(path, "w") as meta_file:
-            json.dump(data, meta_file)
+            with open(path, "w") as meta_file:
+                json.dump(data, meta_file)
 
     def _create_meta(self) -> None:
         """
@@ -109,8 +112,9 @@ class CacheManager:
 
         :return: None
         """
-        with open(self.worker.base_dir + "meta.json", "w") as meta_file:
-            json.dump({}, meta_file)
+        if self.s3 is False:
+            with open(self.worker.base_dir + "meta.json", "w") as meta_file:
+                json.dump({}, meta_file)
 
     @property
     def cache_path(self):
@@ -130,9 +134,11 @@ class CacheManager:
 
         :return: (dict) of meta data from cache
         """
-        with open(self.worker.base_dir + "meta.json") as meta_file:
-            data = json.load(meta_file)
-        return data
+        if self.s3 is False:
+            with open(self.worker.base_dir + "meta.json") as meta_file:
+                data = json.load(meta_file)
+            return data
+        return {}
 
     def __del__(self):
         self.wipe_cache()
