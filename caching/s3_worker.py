@@ -37,7 +37,6 @@ class S3Worker:
         bucket, file_name, short_file_name = self._split_s3_path(storage_path=self.base_dir)
         bucket = self._resource.Bucket(bucket)
         file_prefix = self.base_dir.replace(short_file_name, "").replace("s3://", "")
-        print("here is the file prefix: {}".format(file_prefix))
         bucket.objects.filter(Prefix=file_prefix).delete()
 
     @staticmethod
