@@ -39,6 +39,14 @@ class S3Worker:
         file_prefix = self.base_dir.replace(short_file_name, "").replace("s3://", "")
         bucket.objects.filter(Prefix=file_prefix).delete()
 
+    def lock(self) -> None:
+        """
+        Placeholder for locking as all S3 is locked.
+
+        :return: None
+        """
+        pass
+
     @staticmethod
     def _split_s3_path(storage_path: str) -> Tuple[str, str, str]:
         """
