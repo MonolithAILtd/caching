@@ -24,18 +24,21 @@ class S3Worker:
         self.id: str = str(UUID(bytes=os.urandom(16), version=4))
         self.base_dir: str = cache_path + "{}/".format(self.id)
         self._cached_files: List[Any] = []
-        self._connection = boto3.client('s3')
+        self._client = boto3.client('s3')
+        self._resource = boto3.resource('s3')
         self._locked: bool = False
 
-    def _delete_directory(self) -> None:
+    def delete_directory(self) -> None:
         """
         Deletes cache directory (private).
 
         :return: None
         """
-        _, file_name, short_file_name = self._split_s3_path(storage_path=self.base_dir)
-        file_prefix = file_name.replace(short_file_name, "")
-        self._connection.delete_bucket(Bucket=file_prefix)
+        bucket, file_name, short_file_name = self._split_s3_path(storage_path=self.base_dir)
+        bucket = self._resource.Bucket(bucket)
+        file_prefix = self.base_dir.replace(short_file_name, "").replace("s3://", "")
+        print("here is the file prefix: {}".format(file_prefix))
+        bucket.objects.filter(Prefix=file_prefix).delete()
 
     @staticmethod
     def _split_s3_path(storage_path: str) -> Tuple[str, str, str]:
@@ -51,6 +54,3 @@ class S3Worker:
         file_name = "/".join(path[1:])
         short_file_name = path[-1]
         return bucket_name, file_name, short_file_name
-
-    def __del__(self):
-        self._delete_directory()
