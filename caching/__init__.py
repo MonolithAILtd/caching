@@ -44,8 +44,7 @@ class CacheManager:
         """
         del self.worker
         if self.s3 is True:
-            self.worker = S3Worker(cache_path=self.s3_cache_path)
-            self._create_meta()
+            self.worker = S3Worker(cache_path=self.s3_cache_path, existing_cache=existing_cache)
         else:
             self.worker = Worker(port=self._port, host=self._host,
                                  existing_cache=existing_cache, local_cache=self.local_cache_path)
@@ -96,8 +95,8 @@ class CacheManager:
         :param value: (Union[str, int, float, dict, list]) data to be stored
         :return: None
         """
+        path = self.worker.base_dir + "meta.json"
         if self.s3 is False:
-            path = self.worker.base_dir + "meta.json"
             with open(path) as meta_file:
                 data = json.load(meta_file)
 
@@ -105,6 +104,8 @@ class CacheManager:
 
             with open(path, "w") as meta_file:
                 json.dump(data, meta_file)
+        else:
+            self.worker.insert_meta(key=key, value=value)
 
     def _create_meta(self) -> None:
         """
@@ -138,7 +139,7 @@ class CacheManager:
             with open(self.worker.base_dir + "meta.json") as meta_file:
                 data = json.load(meta_file)
             return data
-        return {}
+        return self.worker.meta
 
     def __del__(self):
         self.wipe_cache()
