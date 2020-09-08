@@ -5,6 +5,7 @@ from uuid import UUID
 import os
 
 import boto3
+import botocore
 import json
 
 
@@ -85,6 +86,24 @@ class S3Worker:
         :return: None
         """
         pass
+
+    def check_file(self, file: str) -> bool:
+        """
+        Checks to see if a file is present in the cache.
+
+        :param file: (str) name of the file being checked
+        :return: True if present, False if not
+        """
+        bucket, cache_path, _ = self._split_s3_path(storage_path=self.base_dir)
+        try:
+            file_path = cache_path + file
+            self._resource.Object(bucket, file_path).load()
+        except botocore.exceptions.ClientError as e:
+            if e.response['Error']['Code'] == "404":
+                return False
+            else:
+                raise
+        return True
 
     @staticmethod
     def _split_s3_path(storage_path: str) -> Tuple[str, str, str]:

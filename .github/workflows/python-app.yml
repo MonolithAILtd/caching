@@ -40,3 +40,7 @@ jobs:
       run: |
         export PYTHONPATH="$PWD/caching"
         python -m unittest discover .
+
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
