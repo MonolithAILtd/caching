@@ -21,8 +21,6 @@ class TestCacheManager(TestCase):
         test.create_cache()
 
         register = Register(host="localhost", port=6379)
-        print("first cache created")
-        print(register.get_all_records())
 
         cache_directory_check = test.worker.base_dir
         meta_file_path = test.worker.base_dir + "meta.json"
@@ -44,9 +42,6 @@ class TestCacheManager(TestCase):
         existing_test = CacheManager(host="localhost", port=6379)
         existing_test.create_cache(existing_cache=test.cache_path)
 
-        print("second cache created with an existing cache without deleting the first one")
-        print(register.get_all_records())
-
         existing_test.insert_meta(key="three", value=3)
         self.assertEqual({"one": 1, "two": 2, "three": 3}, existing_test.meta)
         self.assertEqual({"one": 1, "two": 2, "three": 3}, test.meta)
@@ -55,14 +50,8 @@ class TestCacheManager(TestCase):
         self.assertEqual({"one": 1, "two": 2, "three": 3}, test.meta)
         del existing_test
 
-        print("delete one of the caches")
-        print(register.get_all_records())
-
         existing_cach_path = test.cache_path
         del test
-
-        print("delete the second cache (should be no more caches left)")
-        print(register.get_all_records())
 
         # self.assertEqual(False, os.path.isdir(existing_cach_path))
 
@@ -72,18 +61,12 @@ class TestCacheManager(TestCase):
 
         register = Register(host="localhost", port=6379)
 
-        print("first locked cache created")
-        print(register.get_all_records())
-
         self.assertEqual({}, test.meta)
         test.lock_cache()
         self.assertEqual({"locked": True}, test.meta)
         existing_cach_path = test.cache_path
 
         del test
-
-        print("delete worker of locked cached")
-        print(register.get_all_records())
 
         new_test = CacheManager(host="localhost", port=6379)
         new_test.create_cache(existing_cache=existing_cach_path)
@@ -96,9 +79,6 @@ class TestCacheManager(TestCase):
         self.assertEqual(True, os.path.isdir(existing_cach_path))
 
         del new_test
-
-        print("existing cache created with locked cache and unlocked, then deleted")
-        print(register.get_all_records())
 
         # self.assertEqual(False, os.path.isdir(existing_cach_path))
 
