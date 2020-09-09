@@ -10,6 +10,12 @@ class Register:
     TABLE = "CACHE_REGISTER"
 
     def __init__(self, host: str, port: int) -> None:
+        """
+        The constructor for the
+
+        :param host:
+        :param port:
+        """
         self._connection: StrictRedis = StrictRedis(host=host, port=port, db=0)
 
     def get_count(self, cache_path: str) -> Optional[int]:
