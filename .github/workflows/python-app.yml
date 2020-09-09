@@ -15,12 +15,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Redis
-    - uses: shogo82148/actions-setup-redis@v1
-      with:
-        redis-version: '6.x'
-      run: redis-cli ping
+#    - uses: actions/checkout@v2
+#    - name: Set up Redis
+#    - uses: shogo82148/actions-setup-redis@v1
+#      with:
+#        redis-version: '6.x'
+#      run: redis-cli ping
 
     - name: Set up Python 3.8
     - uses: actions/setup-python@v2
