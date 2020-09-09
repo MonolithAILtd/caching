@@ -52,7 +52,6 @@ class Register:
         :param locked: (bool) is set to True prevents deleting of cache even if it has a count of zero
         :return: (int) the count of the references after the deregister.
         """
-        print("deregister function is firing")
         count: Optional[int] = self.get_count(cache_path=cache_path)
         if count is None:
             raise RegisterError(message="cache {} is not in cache register so it cannot be deregistered".format(

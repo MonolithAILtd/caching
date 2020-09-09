@@ -17,43 +17,48 @@ class TestCacheManager(TestCase):
         return meta
 
     def test_cache(self):
-        test = CacheManager(host="localhost", port=6379)
-        test.create_cache()
+        def run():
+            test = CacheManager(host="localhost", port=6379)
+            test.create_cache()
 
-        register = Register(host="localhost", port=6379)
+            register = Register(host="localhost", port=6379)
 
-        cache_directory_check = test.worker.base_dir
-        meta_file_path = test.worker.base_dir + "meta.json"
-        meta_data = self.get_meta_data(meta_data_path=meta_file_path)
+            cache_directory_check = test.worker.base_dir
+            meta_file_path = test.worker.base_dir + "meta.json"
+            meta_data = self.get_meta_data(meta_data_path=meta_file_path)
 
-        self.assertEqual(True, os.path.isdir(cache_directory_check))
-        self.assertEqual(test.worker.base_dir, test.worker.base_dir)
-        self.assertEqual(None, test.worker._existing_cache)
-        self.assertEqual(True, os.path.isfile(meta_file_path))
-        self.assertEqual({}, meta_data)
-        self.assertEqual({}, test.meta)
+            self.assertEqual(True, os.path.isdir(cache_directory_check))
+            self.assertEqual(test.worker.base_dir, test.worker.base_dir)
+            self.assertEqual(None, test.worker._existing_cache)
+            self.assertEqual(True, os.path.isfile(meta_file_path))
+            self.assertEqual({}, meta_data)
+            self.assertEqual({}, test.meta)
 
-        test.insert_meta(key="one", value=1)
-        test.insert_meta(key="two", value=2)
+            test.insert_meta(key="one", value=1)
+            test.insert_meta(key="two", value=2)
 
-        self.assertEqual({"one": 1, "two": 2}, self.get_meta_data(meta_data_path=meta_file_path))
-        self.assertEqual({"one": 1, "two": 2}, test.meta)
+            self.assertEqual({"one": 1, "two": 2}, self.get_meta_data(meta_data_path=meta_file_path))
+            self.assertEqual({"one": 1, "two": 2}, test.meta)
 
-        existing_test = CacheManager(host="localhost", port=6379)
-        existing_test.create_cache(existing_cache=test.cache_path)
+            existing_test = CacheManager(host="localhost", port=6379)
+            existing_test.create_cache(existing_cache=test.cache_path)
 
-        existing_test.insert_meta(key="three", value=3)
-        self.assertEqual({"one": 1, "two": 2, "three": 3}, existing_test.meta)
-        self.assertEqual({"one": 1, "two": 2, "three": 3}, test.meta)
+            existing_test.insert_meta(key="three", value=3)
+            self.assertEqual({"one": 1, "two": 2, "three": 3}, existing_test.meta)
+            self.assertEqual({"one": 1, "two": 2, "three": 3}, test.meta)
 
-        existing_test.wipe_cache()
-        self.assertEqual({"one": 1, "two": 2, "three": 3}, test.meta)
-        del existing_test
+            existing_test.wipe_cache()
+            self.assertEqual({"one": 1, "two": 2, "three": 3}, test.meta)
+            del existing_test
 
-        existing_cach_path = test.cache_path
-        del test
+            existing_cach_path = test.cache_path
 
-        # self.assertEqual(False, os.path.isdir(existing_cach_path))
+            del test
+            return existing_cach_path
+
+        existing_cach_path = run()
+
+        self.assertEqual(False, os.path.isdir(existing_cach_path))
 
     def test_lock(self):
         test = CacheManager(host="localhost", port=6379)
