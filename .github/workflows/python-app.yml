@@ -26,7 +26,7 @@ jobs:
         uses: shogo82148/actions-setup-redis@v1
         with:
           redis-version: '6.x'
-        run: redis-cli ping
+#        run: redis-cli ping
 
       - name: Install dependencies
         run: |
