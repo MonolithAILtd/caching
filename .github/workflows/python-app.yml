@@ -21,6 +21,7 @@ jobs:
         with:
           python-version: 3.8
 
+      - uses: shogo82148/actions-setup-redis@v1
       - name: Setup Redis
         uses: shogo82148/actions-setup-redis@v1
         with:
