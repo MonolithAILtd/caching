@@ -103,6 +103,7 @@ class Worker:
 
         :return: None
         """
+        print("delete directory function is firing")
         count: int = Register(host=self._host, port=self._port).deregister_cache(cache_path=self.base_dir,
                                                                                  locked=self._locked)
         if count == 0 and self._locked is False:
