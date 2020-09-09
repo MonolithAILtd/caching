@@ -5,6 +5,7 @@ from unittest import TestCase, main
 import json
 
 from caching import CacheManager
+from caching.register import Register
 
 
 class TestCacheManager(TestCase):
@@ -18,6 +19,9 @@ class TestCacheManager(TestCase):
     def test_cache(self):
         test = CacheManager(host="localhost", port=6379)
         test.create_cache()
+
+        register = Register(host="localhost", port=6379)
+        print(register.get_all_records())
 
         cache_directory_check = test.worker.base_dir
         meta_file_path = test.worker.base_dir + "meta.json"
@@ -39,6 +43,8 @@ class TestCacheManager(TestCase):
         existing_test = CacheManager(host="localhost", port=6379)
         existing_test.create_cache(existing_cache=test.cache_path)
 
+        print(register.get_all_records())
+
         existing_test.insert_meta(key="three", value=3)
         self.assertEqual({"one": 1, "two": 2, "three": 3}, existing_test.meta)
         self.assertEqual({"one": 1, "two": 2, "three": 3}, test.meta)
@@ -47,8 +53,12 @@ class TestCacheManager(TestCase):
         self.assertEqual({"one": 1, "two": 2, "three": 3}, test.meta)
         del existing_test
 
+        print(register.get_all_records())
+
         existing_cach_path = test.cache_path
         del test
+
+        print(register.get_all_records())
 
         self.assertEqual(False, os.path.isdir(existing_cach_path))
 
@@ -56,11 +66,17 @@ class TestCacheManager(TestCase):
         test = CacheManager(host="localhost", port=6379)
         test.create_cache()
 
+        register = Register(host="localhost", port=6379)
+        print(register.get_all_records())
+
         self.assertEqual({}, test.meta)
         test.lock_cache()
         self.assertEqual({"locked": True}, test.meta)
         existing_cach_path = test.cache_path
+
         del test
+
+        print(register.get_all_records())
 
         new_test = CacheManager(host="localhost", port=6379)
         new_test.create_cache(existing_cache=existing_cach_path)
@@ -71,7 +87,11 @@ class TestCacheManager(TestCase):
         self.assertEqual({"locked": False}, new_test.meta)
         self.assertEqual(False, new_test.worker._locked)
         self.assertEqual(True, os.path.isdir(existing_cach_path))
+
         del new_test
+
+        print(register.get_all_records())
+
         self.assertEqual(False, os.path.isdir(existing_cach_path))
 
 
