@@ -84,6 +84,9 @@ class CacheManager:
 
         :return: None
         """
+        if self.s3 is False:
+            self.worker._delete_directory()
+            self.worker.deleted = True
         del self.worker
         self.worker = None
 

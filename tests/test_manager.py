@@ -13,6 +13,10 @@ class TestCacheManager(TestCase):
         self.test = CacheManager(host="localhost", port=6379)
         self.s3_test = CacheManager(host="localhost", port=6379, s3=True, s3_cache_path="/test/cache/path/")
 
+    def tearDown(self) -> None:
+        self.test.worker = MagicMock()
+        self.s3_test.worker = MagicMock()
+
     def test___init__(self):
         self.assertEqual(None, self.test.worker)
         self.assertEqual(False, self.test.s3)
@@ -78,6 +82,7 @@ class TestCacheManager(TestCase):
 
     def test_wipe_cache(self):
         self.test.worker = "testing"
+        self.test.s3 = True
         self.test.wipe_cache()
         self.assertEqual(None, self.test.worker)
 

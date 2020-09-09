@@ -25,6 +25,7 @@ class TestWorker(TestCase):
         mock_register.assert_called_once_with(host="localhost", port=1234)
         mock_register.return_value.register_cache.assert_called_once_with(cache_path=test._base_dir)
         mock_register.reset_mock()
+        test.deleted = False
 
         del test
 
@@ -82,6 +83,7 @@ class TestWorker(TestCase):
 
         self.assertEqual(test._base_dir, test._existing_cache)
         mock_generate.assert_called_once_with()
+        test.deleted = False
 
         del test
 
@@ -112,6 +114,7 @@ class TestWorker(TestCase):
             test._generate_directory()
 
         mock_os.mkdir.assert_called_once_with(test.base_dir)
+        test.deleted = False
 
         del test
 
@@ -130,6 +133,7 @@ class TestWorker(TestCase):
         test._locked = False
         test._host = "test host"
         test._port = 1234
+        test.deleted = False
 
         mock_register.return_value.deregister_cache.return_value = 1
         test._delete_directory()
@@ -148,6 +152,7 @@ class TestWorker(TestCase):
         mock_shutil.reset_mock()
 
         test._locked = True
+        test.deleted = False
         mock_register.return_value.deregister_cache.return_value = 1
         test._delete_directory()
         mock_register.assert_called_once_with(host="test host", port=1234)
@@ -168,6 +173,7 @@ class TestWorker(TestCase):
         mock_init.return_value = None
         test = Worker(host="localhost", port=1234)
         test._base_dir = "test dir"
+        test.deleted = False
 
         self.assertEqual(test._base_dir, test.base_dir)
 
@@ -183,6 +189,7 @@ class TestWorker(TestCase):
         test.id = 20
         test._base_dir = "test"
         test._locked = False
+        test.deleted = False
         test.lock()
         self.assertEqual(True, test._locked)
 

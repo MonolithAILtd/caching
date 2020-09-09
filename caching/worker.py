@@ -36,6 +36,7 @@ class Worker:
         self.class_base_dir: str = self.CLASS_BASE_DIR if local_cache is None else local_cache
         self._base_dir: str = str(self.class_base_dir) + "/cache/{}/".format(self.id)
         self._connect_directory()
+        self.deleted = False
         Register(host=self._host, port=self._port).register_cache(cache_path=self.base_dir)
 
     @staticmethod
@@ -124,4 +125,5 @@ class Worker:
 
         :return: None
         """
-        self._delete_directory()
+        if self.deleted is False:
+            self._delete_directory()
