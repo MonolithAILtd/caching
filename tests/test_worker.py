@@ -41,6 +41,13 @@ class TestWorker(TestCase):
         self.assertEqual("testing", test.class_base_dir)
         self.assertEqual("testing/cache/test/", test._base_dir)
 
+        del test
+
+        mock_register.reset_mock()
+
+        test = Worker(port=None, host=None)
+        self.assertEqual(0, len(mock_register.call_args_list))
+
     @patch("caching.worker.datetime")
     @patch("caching.worker.open")
     def test_update_timestamp(self, mock_open, mock_datetime):
