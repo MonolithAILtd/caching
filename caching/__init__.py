@@ -18,7 +18,8 @@ class CacheManager:
         local_cache_path (Optional[str]): path to the local cache
     """
 
-    def __init__(self, s3: bool = False, s3_cache_path: Optional[str] = None, local_cache_path: Optional[str] = None) -> None:
+    def __init__(self, port: int, host: str,
+                 s3: bool = False, s3_cache_path: Optional[str] = None, local_cache_path: Optional[str] = None) -> None:
         """
         The constructor for the CacheManager class.
 
@@ -29,6 +30,8 @@ class CacheManager:
         self.worker: Union[None, Worker, S3Worker] = None
         # pylint: disable=invalid-name
         self.s3: bool = s3
+        self._port: int = port
+        self._host: str = host
         self.s3_cache_path: Optional[str] = s3_cache_path
         self.local_cache_path: Optional[str] = local_cache_path
 
@@ -41,10 +44,10 @@ class CacheManager:
         """
         del self.worker
         if self.s3 is True:
-            self.worker = S3Worker(cache_path=self.s3_cache_path)
-            self._create_meta()
+            self.worker = S3Worker(cache_path=self.s3_cache_path, existing_cache=existing_cache)
         else:
-            self.worker = Worker(existing_cache=existing_cache, local_cache=self.local_cache_path)
+            self.worker = Worker(port=self._port, host=self._host,
+                                 existing_cache=existing_cache, local_cache=self.local_cache_path)
             if existing_cache is None:
                 self._create_meta()
             else:
@@ -59,8 +62,9 @@ class CacheManager:
         """
         if self.worker is None:
             raise CacheManagerError(message="cache worker is not defined so cannot be locked")
-        self.worker.lock()
-        self.insert_meta(key="locked", value=True)
+        if self.s3 is False:
+            self.worker.lock()
+            self.insert_meta(key="locked", value=True)
 
     def unlock_cache(self) -> None:
         """
@@ -70,8 +74,9 @@ class CacheManager:
         """
         if self.worker is None:
             raise CacheManagerError(message="cache worker is not defined so cannot be unlocked")
-        self.worker.unlock()
-        self.insert_meta(key="locked", value=False)
+        if self.s3 is False:
+            self.worker.unlock()
+            self.insert_meta(key="locked", value=False)
 
     def wipe_cache(self) -> None:
         """
@@ -91,13 +96,16 @@ class CacheManager:
         :return: None
         """
         path = self.worker.base_dir + "meta.json"
-        with open(path) as meta_file:
-            data = json.load(meta_file)
+        if self.s3 is False:
+            with open(path) as meta_file:
+                data = json.load(meta_file)
 
-        data[key] = value
+            data[key] = value
 
-        with open(path, "w") as meta_file:
-            json.dump(data, meta_file)
+            with open(path, "w") as meta_file:
+                json.dump(data, meta_file)
+        else:
+            self.worker.insert_meta(key=key, value=value)
 
     def _create_meta(self) -> None:
         """
@@ -105,8 +113,9 @@ class CacheManager:
 
         :return: None
         """
-        with open(self.worker.base_dir + "meta.json", "w") as meta_file:
-            json.dump({}, meta_file)
+        if self.s3 is False:
+            with open(self.worker.base_dir + "meta.json", "w") as meta_file:
+                json.dump({}, meta_file)
 
     @property
     def cache_path(self):
@@ -126,9 +135,11 @@ class CacheManager:
 
         :return: (dict) of meta data from cache
         """
-        with open(self.worker.base_dir + "meta.json") as meta_file:
-            data = json.load(meta_file)
-        return data
+        if self.s3 is False:
+            with open(self.worker.base_dir + "meta.json") as meta_file:
+                data = json.load(meta_file)
+            return data
+        return self.worker.meta
 
     def __del__(self):
         self.wipe_cache()

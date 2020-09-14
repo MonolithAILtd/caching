@@ -24,11 +24,11 @@ class CacheManagerError(Exception):
         super().__init__(message)
 
 
-class MonitorError(Exception):
-    """The error for the Monitor class"""
+class RegisterError(Exception):
+    """The error for the Register class"""
     def __init__(self, message: str) -> None:
         """
-        The constructor for the MonitorError class.
+        The constructor for the RegisterError class.
 
         :param message: (str) the message for the error
         """

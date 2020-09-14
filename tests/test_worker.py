@@ -1,19 +1,19 @@
 from unittest import TestCase, main
-from mock import patch
+from mock import patch, PropertyMock, MagicMock
 from caching.worker import Worker, WorkerCacheError
 
 
 class TestWorker(TestCase):
 
-    @patch("caching.worker.Monitor")
+    @patch("caching.worker.Register")
     @patch("caching.worker.os")
     @patch("caching.worker.Worker._delete_directory")
     @patch("caching.worker.Worker._connect_directory")
     @patch("caching.worker.UUID")
-    def test___init__(self, mock_uuid, mock_connect_directory, mock_delete_directory, mock_os, mock_monitor):
+    def test___init__(self, mock_uuid, mock_connect_directory, mock_delete_directory, mock_os, mock_register):
         mock_uuid.return_value = "test"
 
-        test = Worker()
+        test = Worker(host="localhost", port=1234)
         mock_os.urandom.assert_called_once_with(16)
         mock_uuid.assert_called_once_with(bytes=mock_os.urandom.return_value, version=4)
         self.assertEqual(mock_uuid.return_value, test.id)
@@ -22,20 +22,22 @@ class TestWorker(TestCase):
                          test._base_dir)
         self.assertEqual(False, test._locked)
         self.assertEqual(str(test.CLASS_BASE_DIR), test.class_base_dir)
-        mock_monitor.return_value.__setitem__.assert_called_once_with("test", test._base_dir)
-        mock_monitor.reset_mock()
+        mock_register.assert_called_once_with(host="localhost", port=1234)
+        mock_register.return_value.register_cache.assert_called_once_with(cache_path=test._base_dir)
+        mock_register.reset_mock()
 
         del test
 
         mock_connect_directory.assert_called_once_with()
         mock_delete_directory.assert_called_once_with()
 
-        test = Worker(existing_cache="test")
+        test = Worker(host="localhost", port=1234, existing_cache="test")
         self.assertEqual("test", test._existing_cache)
-        mock_monitor.return_value.__setitem__.assert_called_once_with("test", test._base_dir)
-        mock_monitor.reset_mock()
+        mock_register.assert_called_once_with(host="localhost", port=1234)
+        mock_register.return_value.register_cache.assert_called_once_with(cache_path=test._base_dir)
+        mock_register.reset_mock()
 
-        test = Worker(local_cache="testing")
+        test = Worker(host="localhost", port=1234, local_cache="testing")
         self.assertEqual("testing", test.class_base_dir)
         self.assertEqual("testing/cache/test/", test._base_dir)
 
@@ -49,14 +51,15 @@ class TestWorker(TestCase):
         mock_open.return_value.write.assert_called_once_with("\n" + str(mock_datetime.datetime.now.return_value))
         mock_open.return_value.close.assert_called_once_with()
 
+    @patch("caching.worker.Worker._delete_directory")
     @patch("caching.worker.Worker._generate_directory")
     @patch("caching.worker.os")
     @patch("caching.worker.Worker.__init__")
-    def test__connect_directory(self, mock_init, mock_os, mock_generate):
+    def test__connect_directory(self, mock_init, mock_os, mock_generate, mock_delete):
         mock_init.return_value = None
         mock_os.path.isdir.return_value = False
 
-        test = Worker()
+        test = Worker(host="localhost", port=1234)
         test.id = 20
         test._locked = True
         test._existing_cache = None
@@ -82,6 +85,8 @@ class TestWorker(TestCase):
 
         del test
 
+        mock_delete.assert_called_once_with()
+
     @patch("caching.worker.Worker.update_timestamp")
     @patch("caching.worker.os")
     @patch("caching.worker.Worker._delete_directory")
@@ -90,7 +95,7 @@ class TestWorker(TestCase):
         mock_init.return_value = None
         mock_os.path.isdir.return_value = False
 
-        test = Worker()
+        test = Worker(host="localhost", port=1234)
         test.id = 20
         test._base_dir = "test dir"
         test.timestamp = "test timestamp"
@@ -112,22 +117,56 @@ class TestWorker(TestCase):
 
         mock_delete_directory.assert_called_once_with()
 
-    @patch("caching.worker.Monitor")
+    @patch("caching.worker.Worker.base_dir", spec=PropertyMock)
+    @patch("caching.worker.shutil")
+    @patch("caching.worker.Register")
     @patch("caching.worker.Worker.__init__")
-    def test__delete_directory(self, mock_init, mock_monitor):
+    def test__delete_directory(self, mock_init, mock_register, mock_shutil, mock_base_dir):
         mock_init.return_value = None
+        mock_base_dir.return_value = "base dir"
 
-        test = Worker()
+        test = Worker(host="localhost", port=1234)
         test.id = "test id"
-        test._locked = "test lock"
+        test._locked = False
+        test._host = "test host"
+        test._port = 1234
+
+        mock_register.return_value.deregister_cache.return_value = 1
         test._delete_directory()
-        mock_monitor.return_value.delete_cache.assert_called_once_with(entry_id="test id", locked="test lock")
+        mock_register.assert_called_once_with(host="test host", port=1234)
+        mock_register.return_value.deregister_cache.assert_called_once_with(cache_path=test.base_dir,
+                                                                            locked=test._locked)
+        mock_register.reset_mock()
+
+        mock_register.return_value.deregister_cache.return_value = 0
+        test._delete_directory()
+        mock_register.assert_called_once_with(host="test host", port=1234)
+        mock_register.return_value.deregister_cache.assert_called_once_with(cache_path=test.base_dir,
+                                                                            locked=test._locked)
+        mock_register.reset_mock()
+        mock_shutil.rmtree.assert_called_once_with(test.base_dir)
+        mock_shutil.reset_mock()
+
+        test._locked = True
+        mock_register.return_value.deregister_cache.return_value = 1
+        test._delete_directory()
+        mock_register.assert_called_once_with(host="test host", port=1234)
+        mock_register.return_value.deregister_cache.assert_called_once_with(cache_path=test.base_dir,
+                                                                            locked=test._locked)
+        mock_register.reset_mock()
+        mock_register.return_value.deregister_cache.return_value = 0
+        test._delete_directory()
+        mock_register.assert_called_once_with(host="test host", port=1234)
+        mock_register.return_value.deregister_cache.assert_called_once_with(cache_path=test.base_dir,
+                                                                            locked=test._locked)
+        self.assertEqual(0, len(mock_shutil.rmtree.call_args_list))
+        test._delete_directory = MagicMock()
 
     @patch("caching.worker.Worker._delete_directory")
     @patch("caching.worker.Worker.__init__")
     def test_base_dir(self, mock_init, mock_delete):
         mock_init.return_value = None
-        test = Worker()
+        test = Worker(host="localhost", port=1234)
         test._base_dir = "test dir"
 
         self.assertEqual(test._base_dir, test.base_dir)
@@ -140,7 +179,7 @@ class TestWorker(TestCase):
     @patch("caching.worker.Worker.__init__")
     def test_lock(self, mock_init, mock_delete):
         mock_init.return_value = None
-        test = Worker()
+        test = Worker(host="localhost", port=1234)
         test.id = 20
         test._base_dir = "test"
         test._locked = False
