@@ -24,7 +24,7 @@ directives = {
 
 setuptools.setup(
     name="caching",
-    version="0.0.1",
+    version="0.0.3",
     author="Maxwell Flitton",
     author_email="maxwell@monolithai.com",
     description="Python package for caching",

@@ -18,11 +18,13 @@ class CacheManager:
         local_cache_path (Optional[str]): path to the local cache
     """
 
-    def __init__(self, port: int, host: str,
+    def __init__(self, port: Optional[int] = None, host: Optional[str] = None,
                  s3: bool = False, s3_cache_path: Optional[str] = None, local_cache_path: Optional[str] = None) -> None:
         """
         The constructor for the CacheManager class.
 
+        :param port: (Optional[int]) port for the Redis connection to enable thread safe caching
+        :param host: (Optional[str]) host for the Redis connection to enable thread safe caching
         :param s3: (bool) is True, connect to s3
         :param s3_cache_path: (Optional[str]) path to the cache in the s3
         :param local_cache_path: (Optional[str]) path to the local cache
@@ -30,8 +32,8 @@ class CacheManager:
         self.worker: Union[None, Worker, S3Worker] = None
         # pylint: disable=invalid-name
         self.s3: bool = s3
-        self._port: int = port
-        self._host: str = host
+        self._port: Optional[int] = port
+        self._host: Optional[str] = host
         self.s3_cache_path: Optional[str] = s3_cache_path
         self.local_cache_path: Optional[str] = local_cache_path
 
