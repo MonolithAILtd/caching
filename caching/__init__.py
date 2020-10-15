@@ -5,6 +5,7 @@ from typing import Union, Optional, Dict
 from .errors import CacheManagerError
 from .worker import Worker
 from .s3_worker import S3Worker
+from .root_directory import RootDirectory
 
 
 class CacheManager:
@@ -35,7 +36,7 @@ class CacheManager:
         self._port: Optional[int] = port
         self._host: Optional[str] = host
         self.s3_cache_path: Optional[str] = s3_cache_path
-        self.local_cache_path: Optional[str] = local_cache_path
+        self.local_cache_path: Optional[str] = RootDirectory().path if local_cache_path is None else local_cache_path
 
     def create_cache(self, existing_cache: Optional[str] = None) -> None:
         """
