@@ -22,7 +22,7 @@ class RootDirectory:
         :return: (str)
         """
         python_path_buffer: List[str] = os.environ['PYTHONPATH'].split(":")
-        return python_path_buffer[0]
+        return python_path_buffer[0] + "/cache/"
 
     @property
     def path(self) -> str:
