@@ -96,9 +96,8 @@ class TestWorker(TestCase):
 
     @patch("caching.worker.Worker.update_timestamp")
     @patch("caching.worker.os")
-    @patch("caching.worker.Worker._delete_directory")
     @patch("caching.worker.Worker.__init__")
-    def test__generate_directory(self, mock_init, mock_delete_directory, mock_os, mock_update):
+    def test__generate_directory(self, mock_init, mock_os, mock_update):
         mock_init.return_value = None
         mock_os.path.isdir.return_value = False
 
@@ -108,9 +107,11 @@ class TestWorker(TestCase):
         test.timestamp = "test timestamp"
         test._locked = False
         test._generate_directory()
+        test._port = None
+        test._delete_directory = MagicMock()
 
         mock_os.path.isdir.assert_called_once_with(test._base_dir)
-        mock_os.mkdir.assert_called_once_with(test._base_dir)
+        mock_os.makedirs.assert_called_once_with(test._base_dir)
         mock_update.assert_called_once_with(cache_path=test._base_dir)
 
         mock_os.path.isdir.return_value = True
@@ -118,11 +119,9 @@ class TestWorker(TestCase):
         with self.assertRaises(Exception):
             test._generate_directory()
 
-        mock_os.mkdir.assert_called_once_with(test.base_dir)
+        mock_os.makedirs.assert_called_once_with(test.base_dir)
 
         del test
-
-        mock_delete_directory.assert_called_once_with()
 
     @patch("caching.worker.Worker.base_dir", spec=PropertyMock)
     @patch("caching.worker.shutil")
