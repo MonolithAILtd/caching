@@ -1,6 +1,5 @@
-import os
 from unittest import TestCase, main
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 from caching.root_directory import RootDirectory
 
@@ -31,7 +30,6 @@ class TestRootDirectory(TestCase):
         test = RootDirectory()
 
         test._dir = "some test"
-
 
 
 if __name__ == "__main__":
