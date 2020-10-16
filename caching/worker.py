@@ -96,7 +96,7 @@ class Worker:
                 message="directory {} already exists. Check __del__ and self.id methods".
                 format(self._base_dir)
             )
-        os.mkdir(self._base_dir)
+        os.makedirs(self._base_dir)
         self.update_timestamp(cache_path=self._base_dir)
 
     def _delete_directory(self) -> None:

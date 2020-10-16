@@ -1,5 +1,5 @@
-from typing import Optional, List
-import os
+from typing import Optional
+import tempfile
 
 
 class RootDirectory:
@@ -21,8 +21,7 @@ class RootDirectory:
 
         :return: (str)
         """
-        python_path_buffer: List[str] = os.environ['PYTHONPATH'].split(":")
-        return python_path_buffer[0] + "/cache/"
+        return str(tempfile.TemporaryDirectory())
 
     @property
     def path(self) -> str:
