@@ -10,9 +10,11 @@ from caching import CacheManager, CacheManagerError
 
 class TestCacheManager(TestCase):
 
-    def setUp(self):
+    @patch("caching.RootDirectory")
+    def setUp(self, mock_directory):
         self.test = CacheManager(host="localhost", port=6379)
         self.s3_test = CacheManager(host="localhost", port=6379, s3=True, s3_cache_path="/test/cache/path/")
+        self.mock_directory = mock_directory
 
     def tearDown(self) -> None:
         self.test.worker = MagicMock()
@@ -33,7 +35,7 @@ class TestCacheManager(TestCase):
     @patch("caching.Worker")
     def test_create_cache(self, mock_worker, mock_s3, mock_create_meta, mock_meta):
         mock_meta.return_value = {}
-        path = os.environ['PYTHONPATH'].split(":")[0] + "/cache/"
+        path = self.mock_directory.return_value.path
 
         self.test.create_cache()
         self.assertEqual(mock_worker.return_value, self.test.worker)
