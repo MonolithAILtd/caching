@@ -4,7 +4,7 @@ from unittest import TestCase, main
 
 import json
 
-from caching import CacheManager
+from monolithcaching import CacheManager
 
 
 class TestCacheManager(TestCase):

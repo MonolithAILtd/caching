@@ -1,6 +1,6 @@
 from unittest import TestCase, main
 
-from caching import CacheManager
+from monolithcaching import CacheManager
 
 
 class TestCacheManager(TestCase):

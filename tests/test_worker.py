@@ -1,15 +1,15 @@
 from unittest import TestCase, main
 from mock import patch, PropertyMock, MagicMock
-from caching.worker import Worker, WorkerCacheError
+from monolithcaching.worker import Worker, WorkerCacheError
 
 
 class TestWorker(TestCase):
 
-    @patch("caching.worker.Register")
-    @patch("caching.worker.os")
-    @patch("caching.worker.Worker._delete_directory")
-    @patch("caching.worker.Worker._connect_directory")
-    @patch("caching.worker.UUID")
+    @patch("monolithcaching.worker.Register")
+    @patch("monolithcaching.worker.os")
+    @patch("monolithcaching.worker.Worker._delete_directory")
+    @patch("monolithcaching.worker.Worker._connect_directory")
+    @patch("monolithcaching.worker.UUID")
     def test___init__(self, mock_uuid, mock_connect_directory, mock_delete_directory, mock_os, mock_register):
         mock_uuid.return_value = "test"
 
@@ -48,8 +48,8 @@ class TestWorker(TestCase):
         test = Worker(port=None, host=None)
         self.assertEqual(0, len(mock_register.call_args_list))
 
-    @patch("caching.worker.datetime")
-    @patch("caching.worker.open")
+    @patch("monolithcaching.worker.datetime")
+    @patch("monolithcaching.worker.open")
     def test_update_timestamp(self, mock_open, mock_datetime):
         test = Worker
         test.id = 20
@@ -58,10 +58,10 @@ class TestWorker(TestCase):
         mock_open.return_value.write.assert_called_once_with("\n" + str(mock_datetime.datetime.now.return_value))
         mock_open.return_value.close.assert_called_once_with()
 
-    @patch("caching.worker.Worker._delete_directory")
-    @patch("caching.worker.Worker._generate_directory")
-    @patch("caching.worker.os")
-    @patch("caching.worker.Worker.__init__")
+    @patch("monolithcaching.worker.Worker._delete_directory")
+    @patch("monolithcaching.worker.Worker._generate_directory")
+    @patch("monolithcaching.worker.os")
+    @patch("monolithcaching.worker.Worker.__init__")
     def test__connect_directory(self, mock_init, mock_os, mock_generate, mock_delete):
         mock_init.return_value = None
         mock_os.path.isdir.return_value = False
@@ -94,9 +94,9 @@ class TestWorker(TestCase):
 
         mock_delete.assert_called_once_with()
 
-    @patch("caching.worker.Worker.update_timestamp")
-    @patch("caching.worker.os")
-    @patch("caching.worker.Worker.__init__")
+    @patch("monolithcaching.worker.Worker.update_timestamp")
+    @patch("monolithcaching.worker.os")
+    @patch("monolithcaching.worker.Worker.__init__")
     def test__generate_directory(self, mock_init, mock_os, mock_update):
         mock_init.return_value = None
         mock_os.path.isdir.return_value = False
@@ -123,10 +123,10 @@ class TestWorker(TestCase):
 
         del test
 
-    @patch("caching.worker.Worker.base_dir", spec=PropertyMock)
-    @patch("caching.worker.shutil")
-    @patch("caching.worker.Register")
-    @patch("caching.worker.Worker.__init__")
+    @patch("monolithcaching.worker.Worker.base_dir", spec=PropertyMock)
+    @patch("monolithcaching.worker.shutil")
+    @patch("monolithcaching.worker.Register")
+    @patch("monolithcaching.worker.Worker.__init__")
     def test__delete_directory(self, mock_init, mock_register, mock_shutil, mock_base_dir):
         mock_init.return_value = None
         mock_base_dir.return_value = "base dir"
@@ -168,8 +168,8 @@ class TestWorker(TestCase):
         self.assertEqual(0, len(mock_shutil.rmtree.call_args_list))
         test._delete_directory = MagicMock()
 
-    @patch("caching.worker.Worker._delete_directory")
-    @patch("caching.worker.Worker.__init__")
+    @patch("monolithcaching.worker.Worker._delete_directory")
+    @patch("monolithcaching.worker.Worker.__init__")
     def test_base_dir(self, mock_init, mock_delete):
         mock_init.return_value = None
         test = Worker(host="localhost", port=1234)
@@ -181,8 +181,8 @@ class TestWorker(TestCase):
 
         mock_delete.assert_called_once_with()
 
-    @patch("caching.worker.Worker._delete_directory")
-    @patch("caching.worker.Worker.__init__")
+    @patch("monolithcaching.worker.Worker._delete_directory")
+    @patch("monolithcaching.worker.Worker.__init__")
     def test_lock(self, mock_init, mock_delete):
         mock_init.return_value = None
         test = Worker(host="localhost", port=1234)

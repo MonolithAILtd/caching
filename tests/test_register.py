@@ -1,18 +1,18 @@
 from unittest import TestCase, main
 from unittest.mock import patch, MagicMock
 
-from caching.register import Register, RegisterError
+from monolithcaching.register import Register, RegisterError
 
 
 class TestRegister(TestCase):
 
-    @patch("caching.register.StrictRedis")
+    @patch("monolithcaching.register.StrictRedis")
     def test___init__(self, mock_redis):
         test = Register(host="localhost", port=12345)
         self.assertEqual(mock_redis.return_value, test._connection)
         mock_redis.assert_called_once_with(host="localhost", port=12345, db=0)
 
-    @patch("caching.register.Register.__init__")
+    @patch("monolithcaching.register.Register.__init__")
     def test_get_count(self, mock_init):
         mock_init.return_value = None
         test = Register(host="localhost", port=12345)
@@ -29,8 +29,8 @@ class TestRegister(TestCase):
         self.assertEqual(None, outcome)
         test._connection.hget.assert_called_once_with(name="CACHE_REGISTER", key="test path")
 
-    @patch("caching.register.Register.get_count")
-    @patch("caching.register.Register.__init__")
+    @patch("monolithcaching.register.Register.get_count")
+    @patch("monolithcaching.register.Register.__init__")
     def test_register_cache(self, mock_init, mock_get_count):
         mock_init.return_value = None
         test = Register(host="localhost", port=12345)
@@ -45,8 +45,8 @@ class TestRegister(TestCase):
         test.register_cache(cache_path="test path")
         test._connection.hset.assert_called_once_with(name="CACHE_REGISTER", key="test path", value="1")
 
-    @patch("caching.register.Register.get_count")
-    @patch("caching.register.Register.__init__")
+    @patch("monolithcaching.register.Register.get_count")
+    @patch("monolithcaching.register.Register.__init__")
     def test_deregister_cache(self, mock_init, mock_get_count):
         mock_init.return_value = None
         test = Register(host="localhost", port=12345)
@@ -78,7 +78,7 @@ class TestRegister(TestCase):
         self.assertEqual("cache test path is not in cache register so it cannot be deregistered",
                          str(context.exception))
 
-    @patch("caching.register.Register.__init__")
+    @patch("monolithcaching.register.Register.__init__")
     def test_get_all_records(self, mock_init):
         mock_init.return_value = None
         test = Register(host="localhost", port=12345)

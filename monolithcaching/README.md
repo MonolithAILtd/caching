@@ -25,7 +25,7 @@ The ```CacheManager``` is stored in the ```__init__.py```. This manages the inte
 The ```CacheManager``` only supports one worker, and cleans up everytime you start a new cache or session. The ```cache_path``` is a dynamic property to everytime it's called it will always reference the live current cache. As a result, it's hard to go wrong using the ```CacheManager```. Below is how to use ```CacheManager``` sessions with object being some random objest your working with:
 
 ```python
-from caching import CacheManager
+from monolithcaching import CacheManager
 
 example = CacheManager()
 
@@ -37,7 +37,7 @@ with example:
 Once you go out of the indent the cache is instantly cleaned up and ```example.cache_path) will return nothing. If you want to use your cache in your object or throughout your script use the following approach:
 
 ```python
-from caching import CacheManager
+from monolithcaching import CacheManager
 
 example = CacheManager()
 

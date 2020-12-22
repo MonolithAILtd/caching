@@ -23,11 +23,11 @@ directives = {
 }
 
 setuptools.setup(
-    name="caching",
+    name="monolithcaching",
     version="0.0.3",
     author="Maxwell Flitton",
     author_email="maxwell@monolithai.com",
-    description="Python package for caching",
+    description="Python package for monolithcaching",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/MonolithAILtd/caching",
@@ -40,7 +40,7 @@ setuptools.setup(
     ],
     python_requires='>=3',
     tests_require=['pytest']
-    # ext_modules=cythonize("caching/**/*.py", exclude="tests/**/*.py", compiler_directives=directives, nthreads=4),
+    # ext_modules=cythonize("monolithcaching/**/*.py", exclude="tests/**/*.py", compiler_directives=directives, nthreads=4),
     # cmdclass={'build_py': CustomBuildPy},
     # include_package_data=False,
     # options={"bdist_wheel": {"universal": "1"}}
