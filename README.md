@@ -1,4 +1,7 @@
 # Monolith Caching
+
+Using License Apache 2.0 
+
 This module manages caching for directories. Using this package you are able to create tempory
 directories, access meta data around the directory, and cache in AWS S3. The tempory directories 
 are wiped once the program crashes or finishes unless the cache is locked. Caches can also be managed
@@ -71,3 +74,13 @@ pip install git+ssh://git@github.com/MonolithAILtd/caching.git@master#egg=cachin
 ```
 pip install git+https://github.com/MonolithAILtd/caching#egg=caching
 ```
+
+# Contributing 
+This repo is still fairly new so contributing will require some communication as we are currently working on supporting 
+thread safe caching locally without the need for ```Redis```. You can contact with ideas and outline for a feature 
+at ```maxwell@monolithai.com```.
+
+Writing code is not the only way you can contribute. Merely using the module is a help, if you come across any issues 
+feel free to raise them in the issues section of the Github page as this enables us to make the module more stable.
+If there are any issues that you want to solve, your pull request has to have documentation, 100% unit test coverage 
+and functional testing. 
