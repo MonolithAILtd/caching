@@ -1,7 +1,5 @@
 import setuptools
-from setuptools import dist, find_packages
-dist.Distribution().fetch_build_eggs(['Cython==0.29'])
-from Cython.Build import cythonize
+from setuptools import find_packages
 from setuptools.command.build_py import build_py as build_py_orig
 
 
@@ -39,9 +37,10 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     python_requires='>=3',
-    tests_require=['pytest']
-    # ext_modules=cythonize("monolithcaching/**/*.py", exclude="tests/**/*.py", compiler_directives=directives, nthreads=4),
-    # cmdclass={'build_py': CustomBuildPy},
-    # include_package_data=False,
-    # options={"bdist_wheel": {"universal": "1"}}
+    tests_require=['pytest'],
+    entry_points={
+        'console_scripts': [
+            'hello = monolith_profiling.console_commands.hello:print_logo',
+        ],
+    }
 )
