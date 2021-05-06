@@ -6,15 +6,17 @@ from .errors import RegisterError
 
 
 class Register:
-
+    """
+    This class is responsible for logging caches to Redis and counts how many caches are pointing to the cache.
+    """
     TABLE = "CACHE_REGISTER"
 
     def __init__(self, host: str, port: int) -> None:
         """
-        The constructor for the
+        The constructor for the Register class.
 
-        :param host:
-        :param port:
+        :param host: (str) host for the Redis connection
+        :param port: (int) port for the Redis connection
         """
         self._connection: StrictRedis = StrictRedis(host=host, port=port, db=0)
 

@@ -5,12 +5,12 @@ import os
 from unittest import TestCase, main
 from mock import patch, MagicMock, PropertyMock
 
-from caching import CacheManager, CacheManagerError
+from monolithcaching import CacheManager, CacheManagerError
 
 
 class TestCacheManager(TestCase):
 
-    @patch("caching.RootDirectory")
+    @patch("monolithcaching.RootDirectory")
     def setUp(self, mock_directory):
         self.test = CacheManager(host="localhost", port=6379)
         self.s3_test = CacheManager(host="localhost", port=6379, s3=True, s3_cache_path="/test/cache/path/")
@@ -29,10 +29,10 @@ class TestCacheManager(TestCase):
         self.assertEqual(True, self.s3_test.s3)
         self.assertEqual("/test/cache/path/", self.s3_test.s3_cache_path)
 
-    @patch("caching.CacheManager.meta", new_callable=PropertyMock)
-    @patch("caching.CacheManager._create_meta")
-    @patch("caching.S3Worker")
-    @patch("caching.Worker")
+    @patch("monolithcaching.CacheManager.meta", new_callable=PropertyMock)
+    @patch("monolithcaching.CacheManager._create_meta")
+    @patch("monolithcaching.S3Worker")
+    @patch("monolithcaching.Worker")
     def test_create_cache(self, mock_worker, mock_s3, mock_create_meta, mock_meta):
         mock_meta.return_value = {}
         path = self.mock_directory.return_value.path
@@ -70,7 +70,7 @@ class TestCacheManager(TestCase):
         mock_s3.assert_called_once_with(cache_path="/test/cache/path/", existing_cache=None)
         self.assertEqual(0, len(mock_create_meta.call_args_list))
 
-    @patch("caching.CacheManager.insert_meta")
+    @patch("monolithcaching.CacheManager.insert_meta")
     def test_lock_cache(self, mock_insert_meta):
         self.test.worker = MagicMock()
         self.test.lock_cache()
@@ -90,8 +90,8 @@ class TestCacheManager(TestCase):
         self.test.wipe_cache()
         self.assertEqual(None, self.test.worker)
 
-    @patch("caching.json")
-    @patch("caching.open")
+    @patch("monolithcaching.json")
+    @patch("monolithcaching.open")
     def test_insert_meta(self, mock_open, mock_json):
         self.test.worker = MagicMock()
         mock_json.load.return_value = {"one": 1}
@@ -105,8 +105,8 @@ class TestCacheManager(TestCase):
         self.s3_test.insert_meta(key="test key", value="test value")
         self.s3_test.worker.insert_meta.assert_called_once_with(key="test key", value="test value")
 
-    @patch("caching.json")
-    @patch("caching.open")
+    @patch("monolithcaching.json")
+    @patch("monolithcaching.open")
     def test___create_meta(self, mock_open, mock_json):
         self.test.worker = MagicMock()
         self.test._create_meta()
@@ -120,8 +120,8 @@ class TestCacheManager(TestCase):
         self.test.worker.base_dir = "test dir"
         self.assertEqual("test dir", self.test.cache_path)
 
-    @patch("caching.json")
-    @patch("caching.open")
+    @patch("monolithcaching.json")
+    @patch("monolithcaching.open")
     def test_meta(self, mock_open, mock_json):
         self.test.worker = MagicMock()
         self.assertEqual(self.test.meta, mock_json.load.return_value)
@@ -129,8 +129,8 @@ class TestCacheManager(TestCase):
         mock_open.assert_called_once_with(self.test.worker.base_dir + "meta.json")
         mock_json.load.assert_called_once_with(mock_open.return_value.__enter__.return_value)
 
-    @patch("caching.CacheManager.wipe_cache")
-    @patch("caching.CacheManager.create_cache")
+    @patch("monolithcaching.CacheManager.wipe_cache")
+    @patch("monolithcaching.CacheManager.create_cache")
     def test___enter__(self, mock_create_cache, mock_wipe_cache):
         self.test = CacheManager(host="localhost", port=6379)
 

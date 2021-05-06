@@ -3,16 +3,16 @@ import json
 from unittest import TestCase, main
 from mock import patch, MagicMock, PropertyMock
 
-from caching.s3_worker import S3Worker
+from monolithcaching.s3_worker import S3Worker
 
 
 class TestS3Worker(TestCase):
 
-    @patch("caching.s3_worker.S3Worker.create_meta")
-    @patch("caching.s3_worker.boto3")
-    @patch("caching.s3_worker.S3Worker.extract_id")
-    @patch("caching.s3_worker.os")
-    @patch("caching.s3_worker.UUID")
+    @patch("monolithcaching.s3_worker.S3Worker.create_meta")
+    @patch("monolithcaching.s3_worker.boto3")
+    @patch("monolithcaching.s3_worker.S3Worker.extract_id")
+    @patch("monolithcaching.s3_worker.os")
+    @patch("monolithcaching.s3_worker.UUID")
     def test___init__(self, mock_uuid, mock_os, mock_extract_id, mock_boto, mock_create_meta):
         mock_uuid.return_value = "test"
 
@@ -43,8 +43,8 @@ class TestS3Worker(TestCase):
         mock_boto.client.assert_called_once_with("s3")
         mock_boto.resource.assert_called_once_with("s3")
 
-    @patch("caching.s3_worker.S3Worker._split_s3_path")
-    @patch("caching.s3_worker.S3Worker.__init__")
+    @patch("monolithcaching.s3_worker.S3Worker._split_s3_path")
+    @patch("monolithcaching.s3_worker.S3Worker.__init__")
     def test__delete_directory(self, mock_init, mock_split_path):
         mock_split_path.return_value = ("test bucket", "test/file/path.txt", "path.txt")
         mock_init.return_value = None
@@ -59,8 +59,8 @@ class TestS3Worker(TestCase):
         connection.Bucket.return_value.objects.filter.assert_called_once_with(Prefix="test/file/path.txt")
         connection.Bucket.return_value.objects.filter.return_value.delete.assert_called_once_with()
 
-    @patch("caching.s3_worker.S3Worker._split_s3_path")
-    @patch("caching.s3_worker.S3Worker.__init__")
+    @patch("monolithcaching.s3_worker.S3Worker._split_s3_path")
+    @patch("monolithcaching.s3_worker.S3Worker.__init__")
     def test_create_meta(self, mock_init, mock_split_path):
         mock_split_path.return_value = ("test bucket", "test/file/", "path.txt")
         mock_init.return_value = None
@@ -75,9 +75,9 @@ class TestS3Worker(TestCase):
         connection.Object.assert_called_once_with("test bucket", "test/file/meta.json")
         connection.Object.return_value.put.assert_called_once_with(Body=data_dump)
 
-    @patch("caching.s3_worker.S3Worker.meta", new_callable=PropertyMock)
-    @patch("caching.s3_worker.S3Worker._split_s3_path")
-    @patch("caching.s3_worker.S3Worker.__init__")
+    @patch("monolithcaching.s3_worker.S3Worker.meta", new_callable=PropertyMock)
+    @patch("monolithcaching.s3_worker.S3Worker._split_s3_path")
+    @patch("monolithcaching.s3_worker.S3Worker.__init__")
     def test_insert_meta(self, mock_init, mock_split_path, mock_meta):
         mock_meta.return_value = {"one": 1, "two": 2}
         mock_split_path.return_value = ("test bucket", "test/file/", "path.txt")
@@ -104,8 +104,8 @@ class TestS3Worker(TestCase):
     def test_extract_id(self):
         self.assertEqual("test.txt", S3Worker.extract_id(storage_path="testing/test.txt"))
 
-    @patch("caching.s3_worker.S3Worker._split_s3_path")
-    @patch("caching.s3_worker.S3Worker.__init__")
+    @patch("monolithcaching.s3_worker.S3Worker._split_s3_path")
+    @patch("monolithcaching.s3_worker.S3Worker.__init__")
     def test_meta(self, mock_init, mock_split_path):
         mock_split_path.return_value = ("test bucket", "test/file/", "path.txt")
         mock_init.return_value = None
