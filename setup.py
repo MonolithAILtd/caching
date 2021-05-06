@@ -15,6 +15,11 @@ class CustomBuildPy(build_py_orig):
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
+
+with open('./requirements.txt', 'r') as requirements:
+    requirements_buffer = requirements.read().split("\n")
+
+
 directives = {
     'language_level': 3,
     'always_allow_keywords': True
@@ -29,7 +34,7 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/MonolithAILtd/caching",
-    install_requires=["boto3"],
+    install_requires=requirements_buffer,
     packages=find_packages(exclude=("tests",)),
     classifiers=[
         "Development Status :: 4 - Beta"
