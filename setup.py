@@ -40,7 +40,7 @@ setuptools.setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'hello = monolith_profiling.console_commands.hello:print_logo',
+            'hello = monolithcaching.console_commands.hello:print_logo',
         ],
     }
 )
