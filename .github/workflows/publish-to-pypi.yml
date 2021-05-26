@@ -1,10 +1,6 @@
 name: Publish Python 🐍 distributions 📦 to PyPI
 
-on:
-  pull_request:
-    types: [closed]
-    branches:
-      - main
+on: workflow_dispatch
 
 jobs:
   run-shell-command:
