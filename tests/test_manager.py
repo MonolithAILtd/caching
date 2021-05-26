@@ -1,7 +1,6 @@
 """
 performs unit tests on the CacheManager object. Use: self.test = CacheManager() to ensure memory safety
 """
-import os
 from unittest import TestCase, main
 from mock import patch, MagicMock, PropertyMock
 
