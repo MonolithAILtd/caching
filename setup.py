@@ -41,7 +41,7 @@ setuptools.setup(
     install_requires=requirements_buffer,
     packages=find_packages(exclude=("tests",)),
     classifiers=[
-        "Development Status :: 4 - Beta"
+        "Development Status :: 4 - Beta",
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",
     ],
