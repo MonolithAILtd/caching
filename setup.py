@@ -20,7 +20,7 @@ with open("README.md", "r") as fh:
 with open('./requirements.txt', 'r') as requirements:
     requirements_buffer = requirements.read().split("\n")
 
-with open(str(pathlib.Path(__file__).parent.absolute()) + "/monolith_filemanager/version.py", "r") as fh:
+with open(str(pathlib.Path(__file__).parent.absolute()) + "/monolithcaching/version.py", "r") as fh:
     version = fh.read().split("=")[1].replace("'", "")
 
 
