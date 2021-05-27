@@ -9,6 +9,7 @@ class Register:
     """
     This class is responsible for logging caches to Redis and counts how many caches are pointing to the cache.
     """
+
     TABLE = "CACHE_REGISTER"
 
     def __init__(self, host: str, port: int) -> None:
@@ -56,8 +57,11 @@ class Register:
         """
         count: Optional[int] = self.get_count(cache_path=cache_path)
         if count is None:
-            raise RegisterError(message="cache {} is not in cache register so it cannot be deregistered".format(
-                cache_path))
+            raise RegisterError(
+                message="cache {} is not in cache register so it cannot be de-registered".format(
+                    cache_path
+                )
+            )
         else:
             if count > 0:
                 count -= 1

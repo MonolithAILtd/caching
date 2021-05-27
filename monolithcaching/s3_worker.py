@@ -32,8 +32,8 @@ class S3Worker:
         else:
             self.id: str = self.extract_id(storage_path=existing_cache)  # type: ignore
         self.base_dir: str = cache_path + "{}/".format(self.id)
-        self._client: boto3.client = boto3.client('s3')
-        self._resource: boto3.resource = boto3.resource('s3')
+        self._client: boto3.client = boto3.client("s3")
+        self._resource: boto3.resource = boto3.resource("s3")
         self._locked: bool = False
         if existing_cache is None:
             self.create_meta()
@@ -44,7 +44,9 @@ class S3Worker:
 
         :return: None
         """
-        bucket, cache_path, short_file_name = self._split_s3_path(storage_path=self.base_dir)
+        bucket, cache_path, short_file_name = self._split_s3_path(
+            storage_path=self.base_dir
+        )
         bucket_object = self._resource.Bucket(bucket)
         bucket_object.objects.filter(Prefix=cache_path).delete()
 
@@ -55,11 +57,9 @@ class S3Worker:
         :return: None
         """
         bucket, cache_path, _ = self._split_s3_path(storage_path=self.base_dir)
-        file_path = cache_path + 'meta.json'
+        file_path = cache_path + "meta.json"
         meta_object = self._resource.Object(bucket, file_path)
-        meta_object.put(
-            Body=(bytes(json.dumps({}).encode('UTF-8')))
-        )
+        meta_object.put(Body=(bytes(json.dumps({}).encode("UTF-8"))))
 
     def insert_meta(self, key: str, value: Any) -> None:
         """
@@ -70,14 +70,12 @@ class S3Worker:
         :return: None
         """
         bucket, cache_path, _ = self._split_s3_path(storage_path=self.base_dir)
-        file_path = cache_path + 'meta.json'
+        file_path = cache_path + "meta.json"
         meta_object = self._resource.Object(bucket, file_path)
         meta_data = self.meta
         meta_data[key] = value
 
-        meta_object.put(
-            Body=(bytes(json.dumps(meta_data).encode('UTF-8')))
-        )
+        meta_object.put(Body=(bytes(json.dumps(meta_data).encode("UTF-8"))))
 
     def lock(self) -> None:
         """
@@ -99,7 +97,7 @@ class S3Worker:
             file_path = cache_path + file
             self._resource.Object(bucket, file_path).load()
         except botocore.exceptions.ClientError as e:
-            if e.response['Error']['Code'] == "404":
+            if e.response["Error"]["Code"] == "404":
                 return False
             else:
                 raise
@@ -138,6 +136,6 @@ class S3Worker:
         :return: (Dict) meta data of the cache
         """
         bucket, cache_path, _ = self._split_s3_path(storage_path=self.base_dir)
-        file_path = cache_path + 'meta.json'
+        file_path = cache_path + "meta.json"
         meta_object = self._resource.Object(bucket, file_path)
-        return ast.literal_eval(meta_object.get()['Body'].read().decode('utf-8'))
+        return ast.literal_eval(meta_object.get()["Body"].read().decode("utf-8"))

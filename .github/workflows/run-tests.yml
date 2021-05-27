@@ -12,8 +12,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install mypy
+          pip install black
       - name: type checking
         run: make typehint
+      - name: check code consistency
+        run: make black
       - name: Start containers
         run: docker-compose -f "docker-compose.yml" up -d --build
       - name: run tests

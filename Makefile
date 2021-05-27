@@ -8,7 +8,11 @@ lint:
 
 .PHONY: black
 black:
-	black -1 79 monolithcaching/
+	black ./monolithcaching/
+
+.PHONY: blackcheck
+black:
+	black --check ./monolithcaching/
 
 .PHONY: clean
 clean:
