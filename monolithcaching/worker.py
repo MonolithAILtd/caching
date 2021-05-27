@@ -1,9 +1,9 @@
 """this file defines the worker for managing local cache directories"""
 import datetime
-from uuid import UUID
 import os
-from typing import Optional
 import shutil
+from typing import Optional
+from uuid import UUID
 
 from .errors import WorkerCacheError
 from .register import Register
@@ -37,8 +37,8 @@ class Worker:
         self.class_base_dir: str = self.CLASS_BASE_DIR if local_cache is None else local_cache
         self._base_dir: str = str(self.class_base_dir) + "/cache/{}/".format(self.id)
         self._connect_directory()
-        if self._port is not None:
-            Register(host=self._host, port=self._port).register_cache(cache_path=self.base_dir)
+        if self._port is not None and host is not None:
+            Register(host=self._host, port=self._port).register_cache(cache_path=self.base_dir)  # type: ignore
 
     @staticmethod
     def update_timestamp(cache_path: str) -> None:
@@ -108,8 +108,8 @@ class Worker:
         if self._port is None and self._locked is False:
             shutil.rmtree(self.base_dir)
         elif self._port is not None:
-            count: int = Register(host=self._host, port=self._port).deregister_cache(cache_path=self.base_dir,
-                                                                                     locked=self._locked)
+            count: int = Register(host=self._host, port=self._port).deregister_cache(cache_path=self.base_dir,  # type: ignore
+                                                                                     locked=self._locked)  # type: ignore
             if count == 0 and self._locked is False:
                 shutil.rmtree(self.base_dir)
 

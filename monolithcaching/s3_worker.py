@@ -1,12 +1,12 @@
 """this file defines the worker for pointing to caches in s3 buckets"""
 import ast
-from typing import Tuple, Optional, Any, Dict
-from uuid import UUID
-import os
-
-import boto3
-import botocore
 import json
+import os
+from typing import Tuple, Optional, Any, Dict, List
+from uuid import UUID
+
+import boto3  # type: ignore
+import botocore  # type: ignore
 
 
 # pylint: disable=too-few-public-methods
@@ -28,9 +28,9 @@ class S3Worker:
         """
         # pylint: disable=invalid-name
         if existing_cache is None:
-            self.id: str = str(UUID(bytes=os.urandom(16), version=4))
+            self.id: str = str(UUID(bytes=os.urandom(16), version=4))  # type: ignore
         else:
-            self.id: str = self.extract_id(storage_path=existing_cache)
+            self.id: str = self.extract_id(storage_path=existing_cache)  # type: ignore
         self.base_dir: str = cache_path + "{}/".format(self.id)
         self._client: boto3.client = boto3.client('s3')
         self._resource: boto3.resource = boto3.resource('s3')
@@ -45,8 +45,8 @@ class S3Worker:
         :return: None
         """
         bucket, cache_path, short_file_name = self._split_s3_path(storage_path=self.base_dir)
-        bucket = self._resource.Bucket(bucket)
-        bucket.objects.filter(Prefix=cache_path).delete()
+        bucket_object = self._resource.Bucket(bucket)
+        bucket_object.objects.filter(Prefix=cache_path).delete()
 
     def create_meta(self) -> None:
         """
@@ -113,11 +113,11 @@ class S3Worker:
         :param storage_path: (str) path
         :return: bucket_name, file_name, short_file_name
         """
-        path = storage_path.replace("s3://", "")
-        path = path.split("/")
-        bucket_name = path[0]
-        file_name = "/".join(path[1:])
-        short_file_name = path[-1]
+        path: str = storage_path.replace("s3://", "")
+        path_buffer: List[str] = path.split("/")
+        bucket_name: str = path_buffer[0]
+        file_name: str = "/".join(path_buffer[1:])
+        short_file_name: str = path_buffer[-1]
         return bucket_name, file_name, short_file_name
 
     @staticmethod

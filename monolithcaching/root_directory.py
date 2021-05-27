@@ -1,5 +1,5 @@
-from typing import Optional
 import tempfile
+from typing import Optional
 
 
 class RootDirectory:

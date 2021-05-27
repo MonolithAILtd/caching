@@ -73,4 +73,4 @@ class Register:
 
         :return: (List[dict]) all cache entries
         """
-        return self._connection.hgetall(name=self.TABLE)
+        return self._connection.hgetall(name=self.TABLE)  # type: ignore

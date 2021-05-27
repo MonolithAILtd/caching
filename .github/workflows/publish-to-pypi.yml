@@ -1,6 +1,10 @@
 name: Publish Python 🐍 distributions 📦 to PyPI
 
-on: workflow_dispatch
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - master
 
 jobs:
   run-shell-command:
@@ -17,7 +21,6 @@ jobs:
         if: github.event.pull_request.merged == true
         run: |
           pip install twine
-          pip install pexpect
       - name: package module
         if: github.event.pull_request.merged == true
         run: python setup.py sdist
