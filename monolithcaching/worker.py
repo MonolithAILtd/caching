@@ -1,9 +1,9 @@
 """this file defines the worker for managing local cache directories"""
 import datetime
-from uuid import UUID
 import os
-from typing import Optional
 import shutil
+from typing import Optional
+from uuid import UUID
 
 from .errors import WorkerCacheError
 from .register import Register
@@ -16,10 +16,16 @@ class Worker:
     Attributes:
         id (str): unique id for the worker
     """
+
     CLASS_BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
-    def __init__(self, port: Optional[int], host: Optional[str],
-                 existing_cache: Optional[str] = None, local_cache: Optional[str] = None) -> None:
+    def __init__(
+        self,
+        port: Optional[int],
+        host: Optional[str],
+        existing_cache: Optional[str] = None,
+        local_cache: Optional[str] = None,
+    ) -> None:
         """
         The constructor for the Worker class.
 
@@ -34,11 +40,13 @@ class Worker:
         # pylint: disable=invalid-name
         self.id: str = str(UUID(bytes=os.urandom(16), version=4))
         self._existing_cache: Optional[str] = existing_cache
-        self.class_base_dir: str = self.CLASS_BASE_DIR if local_cache is None else local_cache
+        self.class_base_dir: str = (
+            self.CLASS_BASE_DIR if local_cache is None else local_cache
+        )
         self._base_dir: str = str(self.class_base_dir) + "/cache/{}/".format(self.id)
         self._connect_directory()
-        if self._port is not None:
-            Register(host=self._host, port=self._port).register_cache(cache_path=self.base_dir)
+        if self._port is not None and host is not None:
+            Register(host=self._host, port=self._port).register_cache(cache_path=self.base_dir)  # type: ignore
 
     @staticmethod
     def update_timestamp(cache_path: str) -> None:
@@ -78,8 +86,9 @@ class Worker:
         if self._existing_cache is not None:
             if not os.path.isdir(self._existing_cache):
                 raise WorkerCacheError(
-                    message="directory '{}' was supplied as an existing cache but does not exist".
-                    format(self._existing_cache)
+                    message="directory '{}' was supplied as an existing cache but does not exist".format(
+                        self._existing_cache
+                    )
                 )
             self._base_dir = self._existing_cache
         else:
@@ -93,8 +102,9 @@ class Worker:
         """
         if os.path.isdir(self._base_dir):
             raise WorkerCacheError(
-                message="directory {} already exists. Check __del__ and self.id methods".
-                format(self._base_dir)
+                message="directory {} already exists. Check __del__ and self.id methods".format(
+                    self._base_dir
+                )
             )
         os.makedirs(self._base_dir)
         self.update_timestamp(cache_path=self._base_dir)
@@ -108,8 +118,9 @@ class Worker:
         if self._port is None and self._locked is False:
             shutil.rmtree(self.base_dir)
         elif self._port is not None:
-            count: int = Register(host=self._host, port=self._port).deregister_cache(cache_path=self.base_dir,
-                                                                                     locked=self._locked)
+            count: int = Register(host=self._host, port=self._port).deregister_cache(  # type: ignore
+                cache_path=self.base_dir, locked=self._locked  # type: ignore
+            )  # type: ignore
             if count == 0 and self._locked is False:
                 shutil.rmtree(self.base_dir)
 

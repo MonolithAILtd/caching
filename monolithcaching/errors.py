@@ -4,6 +4,7 @@
 
 class WorkerCacheError(Exception):
     """The error for the Worker class"""
+
     def __init__(self, message: str) -> None:
         """
         The constructor for the WorkerCacheError class.
@@ -15,6 +16,7 @@ class WorkerCacheError(Exception):
 
 class CacheManagerError(Exception):
     """The error for the CacheManager class"""
+
     def __init__(self, message: str) -> None:
         """
         The constructor for the CacheManagerError class.
@@ -26,6 +28,7 @@ class CacheManagerError(Exception):
 
 class RegisterError(Exception):
     """The error for the Register class"""
+
     def __init__(self, message: str) -> None:
         """
         The constructor for the RegisterError class.

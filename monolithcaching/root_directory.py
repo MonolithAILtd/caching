@@ -1,11 +1,12 @@
-from typing import Optional
 import tempfile
+from typing import Optional
 
 
 class RootDirectory:
     """
     This class is responsible for defining the monitoring the root directory for the cache.
     """
+
     def __init__(self, directory: Optional[str] = None) -> None:
         """
         The constructor for the RootDirectory.
