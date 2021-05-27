@@ -19,8 +19,14 @@ class CacheManager:
         local_cache_path (Optional[str]): path to the local cache
     """
 
-    def __init__(self, port: Optional[int] = None, host: Optional[str] = None,
-                 s3: bool = False, s3_cache_path: Optional[str] = None, local_cache_path: Optional[str] = None) -> None:
+    def __init__(
+        self,
+        port: Optional[int] = None,
+        host: Optional[str] = None,
+        s3: bool = False,
+        s3_cache_path: Optional[str] = None,
+        local_cache_path: Optional[str] = None,
+    ) -> None:
         """
         The constructor for the CacheManager class.
 
@@ -36,7 +42,9 @@ class CacheManager:
         self._port: Optional[int] = port
         self._host: Optional[str] = host
         self.s3_cache_path: Optional[str] = s3_cache_path
-        self.local_cache_path: Optional[str] = RootDirectory().path if local_cache_path is None else local_cache_path
+        self.local_cache_path: Optional[str] = (
+            RootDirectory().path if local_cache_path is None else local_cache_path
+        )
 
     def create_cache(self, existing_cache: Optional[str] = None) -> None:
         """
@@ -46,11 +54,17 @@ class CacheManager:
         :return: None
         """
         del self.worker
-        if self.s3 is True:
-            self.worker = S3Worker(cache_path=self.s3_cache_path, existing_cache=existing_cache)
+        if self.s3 is True and self.s3_cache_path is not None:
+            self.worker = S3Worker(
+                cache_path=self.s3_cache_path, existing_cache=existing_cache
+            )
         else:
-            self.worker = Worker(port=self._port, host=self._host,
-                                 existing_cache=existing_cache, local_cache=self.local_cache_path)
+            self.worker = Worker(
+                port=self._port,
+                host=self._host,
+                existing_cache=existing_cache,
+                local_cache=self.local_cache_path,
+            )
             if existing_cache is None:
                 self._create_meta()
             else:
@@ -64,7 +78,9 @@ class CacheManager:
         :return: None
         """
         if self.worker is None:
-            raise CacheManagerError(message="cache worker is not defined so cannot be locked")
+            raise CacheManagerError(
+                message="cache worker is not defined so cannot be locked"
+            )
         if self.s3 is False:
             self.worker.lock()
             self.insert_meta(key="locked", value=True)
@@ -76,8 +92,10 @@ class CacheManager:
         :return: None
         """
         if self.worker is None:
-            raise CacheManagerError(message="cache worker is not defined so cannot be unlocked")
-        if self.s3 is False:
+            raise CacheManagerError(
+                message="cache worker is not defined so cannot be unlocked"
+            )
+        if self.s3 is False and isinstance(self.worker, Worker):
             self.worker.unlock()
             self.insert_meta(key="locked", value=False)
 
@@ -98,8 +116,13 @@ class CacheManager:
         :param value: (Union[str, int, float, dict, list]) data to be stored
         :return: None
         """
+        if self.worker is None:
+            raise CacheManagerError(
+                message="you are trying to insert meta data when no cache is made"
+            )
         path = self.worker.base_dir + "meta.json"
-        if self.s3 is False:
+
+        if self.s3 is False and isinstance(self.worker, Worker):
             with open(path) as meta_file:
                 data = json.load(meta_file)
 
@@ -107,8 +130,10 @@ class CacheManager:
 
             with open(path, "w") as meta_file:
                 json.dump(data, meta_file)
-        else:
+        elif self.s3 is True and isinstance(self.worker, S3Worker):
             self.worker.insert_meta(key=key, value=value)
+        else:
+            raise CacheManagerError(message="worker type is not consistent with setup")
 
     def _create_meta(self) -> None:
         """
@@ -116,7 +141,7 @@ class CacheManager:
 
         :return: None
         """
-        if self.s3 is False:
+        if self.s3 is False and isinstance(self.worker, S3Worker):
             with open(self.worker.base_dir + "meta.json", "w") as meta_file:
                 json.dump({}, meta_file)
 
@@ -138,11 +163,13 @@ class CacheManager:
 
         :return: (dict) of meta data from cache
         """
-        if self.s3 is False:
+        if self.s3 is False and isinstance(self.worker, Worker):
             with open(self.worker.base_dir + "meta.json") as meta_file:
                 data = json.load(meta_file)
             return data
-        return self.worker.meta
+        elif isinstance(self.worker, S3Worker):
+            return self.worker.meta
+        raise CacheManagerError(message="worker is not present for meta data")
 
     def __del__(self):
         self.wipe_cache()

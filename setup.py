@@ -16,10 +16,6 @@ class CustomBuildPy(build_py_orig):
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-
-with open('./requirements.txt', 'r') as requirements:
-    requirements_buffer = requirements.read().split("\n")
-
 with open(str(pathlib.Path(__file__).parent.absolute()) + "/monolithcaching/version.py", "r") as fh:
     version = fh.read().split("=")[1].replace("'", "")
 
@@ -38,7 +34,11 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/MonolithAILtd/caching",
-    install_requires=requirements_buffer,
+    install_requires=[
+        "redis>=3.3.8",
+        "boto3>=1.9.243",
+        "botocore>=1.13.11"
+    ],
     packages=find_packages(exclude=("tests",)),
     classifiers=[
         "Development Status :: 4 - Beta",
