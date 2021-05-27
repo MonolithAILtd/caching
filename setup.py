@@ -37,7 +37,7 @@ setuptools.setup(
     install_requires=[
         "redis>=3.3.8",
         "boto3>=1.9.243",
-        "botocore>=1.13.11"
+        "botocore>=1.11.1"
     ],
     packages=find_packages(exclude=("tests",)),
     classifiers=[
