@@ -118,7 +118,7 @@ class Worker:
         if self._port is None and self._locked is False:
             shutil.rmtree(self.base_dir)
         elif self._port is not None:
-            count: int = Register(host=self._host, port=self._port).deregister_cache(
+            count: int = Register(host=self._host, port=self._port).deregister_cache(  # type: ignore
                 cache_path=self.base_dir, locked=self._locked  # type: ignore
             )  # type: ignore
             if count == 0 and self._locked is False:
