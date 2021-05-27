@@ -75,7 +75,7 @@ class TestRegister(TestCase):
         with self.assertRaises(RegisterError) as context:
             test.deregister_cache(cache_path="test path", locked=True)
 
-        self.assertEqual("cache test path is not in cache register so it cannot be deregistered",
+        self.assertEqual("cache test path is not in cache register so it cannot be de-registered",
                          str(context.exception))
 
     @patch("monolithcaching.register.Register.__init__")

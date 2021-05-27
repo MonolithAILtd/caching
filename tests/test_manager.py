@@ -4,7 +4,7 @@ performs unit tests on the CacheManager object. Use: self.test = CacheManager() 
 from unittest import TestCase, main
 from mock import patch, MagicMock, PropertyMock
 
-from monolithcaching import CacheManager, CacheManagerError
+from monolithcaching import CacheManager, CacheManagerError, S3Worker, Worker
 
 
 class TestCacheManager(TestCase):
@@ -107,7 +107,8 @@ class TestCacheManager(TestCase):
     @patch("monolithcaching.json")
     @patch("monolithcaching.open")
     def test___create_meta(self, mock_open, mock_json):
-        self.test.worker = MagicMock()
+        self.test.worker = MagicMock(spec=S3Worker)
+        self.test.worker.base_dir = "some/dir/"
         self.test._create_meta()
         mock_open.assert_called_once_with(self.test.worker.base_dir + "meta.json", "w")
         mock_json.dump.assert_called_once_with({}, mock_open.return_value.__enter__.return_value)
@@ -122,7 +123,7 @@ class TestCacheManager(TestCase):
     @patch("monolithcaching.json")
     @patch("monolithcaching.open")
     def test_meta(self, mock_open, mock_json):
-        self.test.worker = MagicMock()
+        self.test.worker = MagicMock(spec=Worker)
         self.assertEqual(self.test.meta, mock_json.load.return_value)
 
         mock_open.assert_called_once_with(self.test.worker.base_dir + "meta.json")
