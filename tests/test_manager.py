@@ -92,7 +92,8 @@ class TestCacheManager(TestCase):
     @patch("monolithcaching.json")
     @patch("monolithcaching.open")
     def test_insert_meta(self, mock_open, mock_json):
-        self.test.worker = MagicMock()
+        self.test.worker = MagicMock(spec=Worker)
+        self.test.worker.base_dir = "some/base/dir/"
         mock_json.load.return_value = {"one": 1}
 
         self.test.insert_meta(key="test key", value="test value")
@@ -100,7 +101,8 @@ class TestCacheManager(TestCase):
         mock_json.dump.assert_called_once_with({'one': 1, 'test key': 'test value'},
                                                mock_open.return_value.__enter__.return_value)
 
-        self.s3_test.worker = MagicMock()
+        self.s3_test.worker = MagicMock(spec=S3Worker)
+        self.s3_test.worker.base_dir = "some/base/dir/"
         self.s3_test.insert_meta(key="test key", value="test value")
         self.s3_test.worker.insert_meta.assert_called_once_with(key="test key", value="test value")
 
