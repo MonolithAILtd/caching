@@ -141,7 +141,7 @@ class CacheManager:
 
         :return: None
         """
-        if self.s3 is False and isinstance(self.worker, S3Worker):
+        if self.s3 is False and isinstance(self.worker, Worker):
             with open(self.worker.base_dir + "meta.json", "w") as meta_file:
                 json.dump({}, meta_file)
 
