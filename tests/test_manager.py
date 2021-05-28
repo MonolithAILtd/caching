@@ -109,7 +109,7 @@ class TestCacheManager(TestCase):
     @patch("monolithcaching.json")
     @patch("monolithcaching.open")
     def test___create_meta(self, mock_open, mock_json):
-        self.test.worker = MagicMock(spec=S3Worker)
+        self.test.worker = MagicMock(spec=Worker)
         self.test.worker.base_dir = "some/dir/"
         self.test._create_meta()
         mock_open.assert_called_once_with(self.test.worker.base_dir + "meta.json", "w")
